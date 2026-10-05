@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  DIARIO DE ESTUDIO - index.html
+  ============================================================
+  Este es el archivo que ABRE el navegador (se abre con doble clic).
+  Aquí solo está la ESTRUCTURA de la página (el esqueleto visible):
+  el título, el contador de racha (🔥), el formulario y la lista.
+
+  No hay lógica aquí. La lógica (guardar, calcular la racha, etc.)
+  vive en app.js, y el diseño (colores, tamaños) en styles.css.
+  ============================================================
+-->
+<html lang="es">
+<head>
+  <!--
+    charset="UTF-8": permite acentos, ñ y emojis (como 🔥).
+    viewport: hace que la página se vea bien en el móvil
+    (sin esto, el celular mostraría la web diminuta).
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Diario de Estudio</title>
+
+  <!-- Enlazamos la hoja de estilos (el diseño visual). -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <!-- Contenedor principal: agrupa todo para centrarlo y darle márgenes. -->
+  <main class="contenedor">
+
+    <!-- ====== ENCABEZADO ====== -->
+    <header class="cabecera">
+      <h1>Diario de Estudio</h1>
+      <p class="subtitulo">Registra tus sesiones y mantén viva la racha</p>
+    </header>
+
+    <!--
+      ====== TARJETA DE LA RACHA ======
+      Aquí se muestra el número de días consecutivos estudiando.
+      El <span id="racha"> está VACÍO a propósito: JavaScript lo rellenará
+      con el número real. Lo identificamos con id="racha".
+    -->
+    <section class="tarjeta-racha" aria-label="Racha actual">
+      <p class="etiqueta-racha">Racha actual</p>
+      <p class="valor-racha"><span id="racha">0</span>🔥</p>
+      <p class="unidad-racha">días seguidos</p>
+    </section>
+
+    <!--
+      ====== FORMULARIO PARA REGISTRAR UNA SESIÓN ======
+      Cuando el usuario lo envíe, JavaScript escuchará el evento "submit".
+    -->
+    <section class="tarjeta">
+      <h2>Nueva sesión</h2>
+
+      <form id="formulario">
+        <!-- Campo 1: FECHA (viene rellena con HOY, pero se puede cambiar) -->
+        <div class="campo">
+          <label for="fecha">Fecha</label>
+          <input type="date" id="fecha" required />
+        </div>
+
+        <!-- Campo 2: TEMA (texto obligatorio, ej: "JavaScript") -->
+        <div class="campo">
+          <label for="tema">Tema</label>
+          <input
+            type="text"
+            id="tema"
+            placeholder="Ej: Funciones en JavaScript"
+            required
+          />
+        </div>
+
+        <!-- Campo 3: MINUTOS (número entero mayor que 0) -->
+        <div class="campo">
+          <label for="minutos">Minutos</label>
+          <input
+            type="number"
+            id="minutos"
+            min="1"
+            placeholder="Ej: 45"
+            required
+          />
+        </div>
+
+        <!-- Botón que dispara el envío del formulario -->
+        <button type="submit" class="boton">Guardar sesión</button>
+      </form>
+    </section>
+
+    <!--
+      ====== LISTA DE SESIONES ======
+      JavaScript insertará aquí cada sesión guardada, de la más
+      reciente a la más antigua. Empieza vacía (<ul> sin <li>).
+    -->
+    <section class="tarjeta">
+      <h2>Mis sesiones</h2>
+      <!-- id="lista" => JavaScript la busca por este id para llenarla -->
+      <ul id="lista" class="lista-sesiones"></ul>
+      <!-- Mensaje que se muestra cuando todavía no hay ninguna sesión -->
+      <p id="mensaje-vacio" class="mensaje-vacio">
+        Todavía no has registrado ninguna sesión. ¡Empieza hoy! 💪
+      </p>
+    </section>
+
+  </main>
+
+  <!--
+    Enlazamos el JavaScript AL FINAL del body, a propósito.
+    Así el HTML ya existe cuando el script se ejecuta y puede
+    encontrar todos los elementos por su id sin errores.
+  -->
+  <script src="app.js"></script>
+</body>
+</html>

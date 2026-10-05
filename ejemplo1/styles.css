@@ -1,0 +1,251 @@
+/* ============================================================
+   DIARIO DE ESTUDIO - styles.css
+   ============================================================
+   Aquí vive TODO el diseño visual: colores, tamaños, espacios.
+   No hay lógica. Si quieres cambiar cómo se ve la web,
+   tocas este archivo.
+
+   Cada bloque va separado y comentado para que sea fácil
+   encontrar qué controla cada cosa.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1) VARIABLES DE COLOR (custom properties)
+   ------------------------------------------------------------
+   Las "variables" (--nombre) nos permiten definir un color una
+   sola vez y reutilizarlo. Si mañana quiero cambiar el morado,
+   lo cambio AQUÍ y se actualiza en toda la web.
+------------------------------------------------------------ */
+:root {
+  --color-fondo: #f4f5fb;        /* color de fondo general (gris azulado claro) */
+  --color-tarjeta: #ffffff;      /* color de las tarjetas (blanco) */
+  --color-primario: #6c5ce7;     /* morado principal (botones, acentos) */
+  --color-primario-oscuro: #5546c9; /* morado más oscuro (al pasar el mouse) */
+  --color-texto: #2d2d3a;        /* gris oscuro para el texto principal */
+  --color-texto-suave: #7a7a8c;  /* gris claro para textos secundarios */
+  --color-borde: #e3e3ee;        /* color de los bordes suaves */
+  --radio: 14px;                 /* "redondez" de las esquinas */
+  --sombra: 0 4px 18px rgba(0, 0, 0, 0.06); /* sombra suave de las tarjetas */
+}
+
+/* ------------------------------------------------------------
+   2) RESET BÁSICO
+   ------------------------------------------------------------
+   Por defecto el navegador añade márgenes y usa un modelo de caja
+   que confunde. Aquí lo normalizamos para que todo sea predecible.
+   El "*" significa "todos los elementos".
+------------------------------------------------------------ */
+* {
+  box-sizing: border-box; /* el padding y el borde NO agrandan el ancho */
+  margin: 0;              /* quitamos márgenes por defecto */
+  padding: 0;             /* quitamos padding por defecto */
+}
+
+/* ------------------------------------------------------------
+   3) ESTILOS DEL CUERPO (body)
+   ------------------------------------------------------------
+   Fuente, color de fondo, color de texto y centrado general.
+------------------------------------------------------------ */
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  line-height: 1.5;           /* espacio entre líneas (más legible) */
+  padding: 24px 16px;         /* aire alrededor del contenido */
+  min-height: 100vh;          /* ocupa al menos toda la altura de la pantalla */
+}
+
+/* ------------------------------------------------------------
+   4) CONTENEDOR PRINCIPAL
+   ------------------------------------------------------------
+   Centra el contenido y le pone un ancho máximo, para que en
+   pantallas grandes no se estire demasiado.
+------------------------------------------------------------ */
+.contenedor {
+  max-width: 540px;   /* ancho máximo (tipo móvil, agradable de leer) */
+  margin: 0 auto;     /* "auto" a los lados = centrado horizontal */
+  display: flex;
+  flex-direction: column; /* apila las secciones en vertical */
+  gap: 20px;              /* separación entre secciones */
+}
+
+/* ------------------------------------------------------------
+   5) ENCABEZADO
+------------------------------------------------------------ */
+.cabecera {
+  text-align: center;
+}
+
+.cabecera h1 {
+  font-size: 1.9rem;
+  color: var(--color-primario);
+}
+
+.subtitulo {
+  color: var(--color-texto-suave);
+  font-size: 0.95rem;
+}
+
+/* ------------------------------------------------------------
+   6) TARJETA DE LA RACHA (destacada, con degradado morado)
+   ------------------------------------------------------------
+   Le damos protagonismo porque es el elemento "motivador".
+------------------------------------------------------------ */
+.tarjeta-racha {
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
+  color: #ffffff;
+  border-radius: var(--radio);
+  padding: 26px;
+  text-align: center;
+  box-shadow: var(--sombra);
+}
+
+.etiqueta-racha {
+  font-size: 0.9rem;
+  opacity: 0.85;       /* un poco transparente para que no compita con el número */
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.valor-racha {
+  font-size: 3rem;     /* el número grande (🔥) */
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.unidad-racha {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+/* ------------------------------------------------------------
+   7) TARJETAS NORMALES (formulario y lista)
+------------------------------------------------------------ */
+.tarjeta {
+  background-color: var(--color-tarjeta);
+  border-radius: var(--radio);
+  padding: 22px;
+  box-shadow: var(--sombra);
+}
+
+.tarjeta h2 {
+  font-size: 1.15rem;
+  margin-bottom: 14px; /* separación entre el título y el contenido */
+}
+
+/* ------------------------------------------------------------
+   8) FORMULARIO
+   ------------------------------------------------------------
+   .campo agrupa cada etiqueta + input. Los colocamos en vertical.
+------------------------------------------------------------ */
+#formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-texto-suave);
+}
+
+.campo input {
+  padding: 11px 12px;
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: inherit; /* hereda la fuente del body */
+  color: var(--color-texto);
+  background-color: #fafaff;
+}
+
+/* Cuando el usuario hace clic en un input, se resalta en morado. */
+.campo input:focus {
+  outline: none;
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+}
+
+/* ------------------------------------------------------------
+   9) BOTÓN "GUARDAR SESIÓN"
+------------------------------------------------------------ */
+.boton {
+  background-color: var(--color-primario);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;            /* el cursor cambia a "manita" */
+  transition: background-color 0.2s ease; /* cambio suave de color */
+}
+
+/* Al pasar el mouse por encima, se oscurece. */
+.boton:hover {
+  background-color: var(--color-primario-oscuro);
+}
+
+/* ------------------------------------------------------------
+   10) LISTA DE SESIONES
+   ------------------------------------------------------------
+   Quitamos los "puntitos" por defecto de las <ul> y damos
+   estilo a cada sesión (cada <li>).
+------------------------------------------------------------ */
+.lista-sesiones {
+  list-style: none;   /* sin viñetas */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sesion {
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: #fcfcff;
+}
+
+.sesion-tema {
+  font-weight: 600;
+}
+
+.sesion-detalle {
+  font-size: 0.85rem;
+  color: var(--color-texto-suave);
+  display: flex;
+  gap: 12px;          /* separa la fecha de los minutos */
+  flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------
+   11) MENSAJE "TODAVÍA NO HAY SESIONES"
+   ------------------------------------------------------------
+   Lo ocultamos con JavaScript cuando ya hay sesiones.
+------------------------------------------------------------ */
+.mensaje-vacio {
+  text-align: center;
+  color: var(--color-texto-suave);
+  font-size: 0.9rem;
+  padding: 12px 0;
+}
+
+/* ------------------------------------------------------------
+   12) UTILIDAD: CLASE PARA OCULTAR
+   ------------------------------------------------------------
+   Cuando JavaScript añade esta clase a un elemento, desaparece.
+   La usamos para esconder el mensaje de "vacío".
+------------------------------------------------------------ */
+.oculto {
+  display: none;
+}
