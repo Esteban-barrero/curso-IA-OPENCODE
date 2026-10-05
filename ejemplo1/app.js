@@ -41,6 +41,9 @@ const elementoMejorRacha = document.getElementById("mejor-racha");
 // Donde pintamos el total de minutos estudiados esta semana.
 const elementoMinutosSemana = document.getElementById("minutos-semana");
 
+// Donde pintamos cuántos días distintos se ha estudiado este mes.
+const elementoDiasMes = document.getElementById("dias-mes");
+
 // La lista <ul> donde van las sesiones.
 const listaSesiones = document.getElementById("lista");
 
@@ -289,6 +292,57 @@ function calcularMinutosSemana(sesiones) {
 
 
 /* ------------------------------------------------------------
+   FUNCIÓN: calcularDiasEstudiadosMes
+   ------------------------------------------------------------
+   Cuenta cuántos DÍAS DISTINTOS se ha estudiado en el MES ACTUAL.
+
+   Si estudias dos veces el mismo día, cuenta como UN solo día.
+   Solo cuentan los días hasta HOY: se IGNORAN las fechas futuras.
+
+   Estrategia:
+     1. Sacar el año y el mes actuales en hora local.
+     2. Construir el prefijo del mes como texto "AAAA-MM"
+        (por ejemplo "2026-10").
+     3. Recorrer las sesiones y quedarnos con las que:
+          - su fecha empieza por ese prefijo (son de este mes), y
+          - su fecha es menor o igual a HOY (no son futuras).
+     4. Guardar esas fechas en un Set (para no repetir días) y
+        devolver cuántos días distintos hay.
+
+   Truco: comparar fechas como texto "AAAA-MM-DD" funciona igual
+   que comparar el calendario, y respeta la hora local.
+------------------------------------------------------------ */
+function calcularDiasEstudiadosMes(sesiones) {
+  // 1) Año y mes actuales, en hora local.
+  const hoy = new Date();
+  const anio = hoy.getFullYear();                       // 2026
+  const mes = String(hoy.getMonth() + 1).padStart(2, "0"); // "10"
+
+  // 2) Prefijo del mes: "2026-10".
+  const prefijoMes = `${anio}-${mes}`;
+
+  // Fecha de hoy como texto "AAAA-MM-DD", para descartar futuras.
+  const hoyISO = obtenerFechaLocalISO(hoy);
+
+  // 3) Nos quedamos con los días válidos de este mes.
+  //    Usamos un Set para que cada día cuente una sola vez.
+  const diasConEstudio = new Set();
+
+  sesiones.forEach((sesion) => {
+    const esDeEsteMes = sesion.fecha.startsWith(prefijoMes);
+    const noEsFutura = sesion.fecha <= hoyISO;
+
+    if (esDeEsteMes && noEsFutura) {
+      diasConEstudio.add(sesion.fecha);
+    }
+  });
+
+  // 4) El número de días distintos es el tamaño del Set.
+  return diasConEstudio.size;
+}
+
+
+/* ------------------------------------------------------------
    FUNCIÓN: formatearFecha
    ------------------------------------------------------------
    Convierte una fecha "YYYY-MM-DD" en algo legible en español,
@@ -403,6 +457,9 @@ function renderizar(sesiones) {
 
   // 7) Actualizamos el total de minutos estudiados esta semana.
   elementoMinutosSemana.textContent = calcularMinutosSemana(sesiones);
+
+  // 8) Actualizamos los días distintos estudiados este mes.
+  elementoDiasMes.textContent = calcularDiasEstudiadosMes(sesiones);
 }
 
 

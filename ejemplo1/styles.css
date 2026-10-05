@@ -151,6 +151,21 @@ body {
   font-weight: 700;
 }
 
+/*
+  Días estudiados este mes: cuarto dato de la tarjeta.
+  Mismo estilo que la línea de la semana para que combinen.
+*/
+.dias-mes {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* El número de días, destacado con negrita. */
+.dias-mes span {
+  font-weight: 700;
+}
+
 /* ------------------------------------------------------------
    7) TARJETAS NORMALES (formulario y lista)
 ------------------------------------------------------------ */

@@ -26,6 +26,8 @@ No es una aplicación real: es material de aprendizaje.
   (INCLUYE la racha actual). Una racha de 1 solo día ya cuenta como 1.
 - **Minutos de la semana**: suma de minutos de las sesiones de la semana actual,
   de **lunes a domingo** (hora local).
+- **Días del mes**: número de días DISTINTOS del mes actual (hora local) con al
+  menos una sesión, contando solo hasta hoy (se ignoran las fechas futuras).
 - Fechas siempre en **hora local del usuario** (nunca UTC).
 
 ## Forma de trabajar

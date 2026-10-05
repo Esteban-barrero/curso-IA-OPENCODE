@@ -3,8 +3,8 @@
 Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo que ya no aporte.
 
 ## Estado actual
-- v3 funcionando: registrar sesiones (fecha, tema, minutos), racha actual, mejor racha,
-  total de minutos de la semana y lista de sesiones.
+- v4 funcionando: registrar sesiones (fecha, tema, minutos), racha actual, mejor racha,
+  total de minutos de la semana, días estudiados del mes y lista de sesiones.
 - Datos en localStorage (clave `diarioEstudio.sesiones`).
 
 ## Decisiones (y por qué)
@@ -15,6 +15,8 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
   actual (mostraba 0 con 3 días seguidos) y luego exigiendo 2+ días; se simplificó.
 - Minutos de la semana = semana natural de lunes a domingo (no domingo a sábado); es la
   convención en español.
+- Días del mes = días DISTINTOS (no sesiones: dos el mismo día cuentan como 1) y solo
+  hasta hoy (se ignoran fechas futuras del mes).
 
 ## Aprendizajes y errores a evitar
 - AGENTS.md tenía la clave de localStorage mal (`diario-estudio-sesiones`); la real es `diarioEstudio.sesiones`.
