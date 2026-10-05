@@ -118,6 +118,24 @@ body {
   opacity: 0.85;
 }
 
+/*
+  Mejor racha: dato secundario dentro de la misma tarjeta morada.
+  Le ponemos un separador arriba y lo hacemos algo más pequeño para
+  que no compita con la racha actual.
+*/
+.mejor-racha {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 1rem;
+  opacity: 0.95;
+}
+
+/* El número de la mejor racha, un poco destacado con negrita. */
+.mejor-racha span {
+  font-weight: 700;
+}
+
 /* ------------------------------------------------------------
    7) TARJETAS NORMALES (formulario y lista)
 ------------------------------------------------------------ */

@@ -19,19 +19,31 @@ No es una aplicación real: es material de aprendizaje.
 - Debe funcionar abriendo `index.html` con doble clic (sin servidor ni instalación).
 - Nombres de archivo estándar dentro de cada ejemplo: `index.html`, `styles.css`, `app.js`.
 
-### Reglas aprendidas de `ejemplo1` (Diario de Estudio)
+## Reglas de negocio (Diario de Estudio)
+- **Racha actual**: días consecutivos con sesión que terminan hoy. Regla "viva": si hoy
+  no hay sesión pero ayer sí, la racha sigue viva (no se rompe hasta que termina el día).
+- **Mejor racha**: la corrida de días consecutivos más larga del historial
+  (INCLUYE la racha actual). Una racha de 1 solo día ya cuenta como 1.
+- Fechas siempre en **hora local del usuario** (nunca UTC).
 
-- Fechas: usar **siempre la fecha local**, nunca UTC. Al formatear una fecha `YYYY-MM-DD`,
-  añadir `T00:00:00` para evitar desfases de zona horaria.
-- Persistencia: `localStorage` (solo guarda texto → `JSON.stringify` / `JSON.parse`).
-- Al pintar listas, preferir `createElement`/`textContent` sobre `innerHTML`.
+## Forma de trabajar
+- Haz solo lo que se pide: no añadas funcionalidades por tu cuenta.
+- Cambios pequeños y enfocados; no reescribas lo que ya funciona.
+- Al terminar, resume qué has cambiado y cualquier decisión que deba revisar.
 
-## Flujo de trabajo
+## Memoria
+- Al empezar, lee `MEMORY.md` para conocer el estado del proyecto y las decisiones tomadas.
+- Al terminar una tarea, actualízalo: estado actual, decisiones importantes (con su porqué) y errores a evitar.
+- Mantenlo breve (máximo ~50 líneas): resume o elimina lo que ya no aporte.
+- Si algo se convierte en una regla permanente, propón moverlo a `AGENTS.md` en lugar de dejarlo en la memoria.
+- No guardes nunca datos sensibles (claves, tokens, datos personales).
 
-- Para **abrir un ejemplo** en el navegador desde el shell (Windows/PowerShell):
-  `Start-Process "ruta\al\index.html"`.
-- **Git ya está configurado** (usuario, email y credenciales de Windows). El remoto
-  `origin` apunta a https://github.com/Esteban-barrero/curso-IA-OPENCODE.
-- Subir cambios: `git add .` → `git commit -m "..."` → `git push`.
-  PowerShell muestra los mensajes de `git` en rojo como si fueran error; **ignóralos si
-  el código de salida es 0**.
+## Límites
+- ✅ Siempre: respetar las reglas de fechas y racha, mantener los textos en español.
+- ✅ Siempre: actualizar 'MEMORY.md' al terminar la tarea.
+- ⚠️ Pregunta antes: crear archivos nuevos, cambiar el formato de los datos guardados.
+- ❌ Nunca: añadir dependencias, frameworks o un paso de build.
+
+## Verificación
+- No hay tests ni lint. Probar abriendo `index.html` en el navegador.
+- Para empezar de cero: DevTools -> Application -> Local Storage -> borrar la clave `diarioEstudio.sesiones`.

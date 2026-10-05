@@ -35,6 +35,9 @@ const campoMinutos = document.getElementById("minutos");
 // Donde pintamos el número grande de la racha.
 const elementoRacha = document.getElementById("racha");
 
+// Donde pintamos la MEJOR racha (la más larga conseguida nunca).
+const elementoMejorRacha = document.getElementById("mejor-racha");
+
 // La lista <ul> donde van las sesiones.
 const listaSesiones = document.getElementById("lista");
 
@@ -176,6 +179,68 @@ function calcularRacha(sesiones) {
 
 
 /* ------------------------------------------------------------
+   FUNCIÓN: calcularMejorRacha
+   ------------------------------------------------------------
+   Calcula la MEJOR racha: la corrida de días consecutivos más
+   larga que se ha conseguido NUNCA.
+
+   Decisiones tomadas (las que eligió el usuario):
+     - La mejor racha INCLUYE la racha actual. Es decir, si la
+       racha que tienes ahora mismo es la más larga, se muestra.
+     - Una racha de 1 solo día ya cuenta como 1. Es decir, si
+       únicamente has estudiado un día suelto, la mejor racha es 1.
+
+   Estrategia:
+     1. Sacar las fechas únicas con estudio y ordenarlas de la
+        más antigua a la más nueva.
+     2. Recorrerlas agrupando días consecutivos en "rachas".
+     3. Quedarnos con la más larga (de 2+ días).
+
+   Ojo: las fechas son "YYYY-MM-DD" (texto), y ese formato se
+   ordena solo alfabéticamente de la más antigua a la más nueva.
+------------------------------------------------------------ */
+function calcularMejorRacha(sesiones) {
+  // Si no hay sesiones, no hay mejor racha posible.
+  if (sesiones.length === 0) {
+    return 0;
+  }
+
+  // 1) Fechas únicas (sin duplicados) ordenadas de antigua a nueva.
+  //    El formato "YYYY-MM-DD" se ordena solo alfabéticamente = cronológicamente.
+  const diasConEstudio = [...new Set(sesiones.map((sesion) => sesion.fecha))].sort();
+
+  let mejor = 0;        // la racha más larga encontrada hasta ahora
+  let inicioRacha = 0;  // índice donde empieza la racha que estamos mirando
+
+  // 2) Recorremos cada día y, cuando la racha se rompe, la evaluamos.
+  for (let i = 0; i < diasConEstudio.length; i++) {
+    const diaActual = diasConEstudio[i];
+    const diaSiguiente = diasConEstudio[i + 1];
+
+    // ¿El día siguiente (si existe) es justo el día después de este?
+    const continua =
+      diaSiguiente !== undefined &&
+      obtenerFechaLocalISO(sumarDias(new Date(`${diaActual}T00:00:00`), 1)) === diaSiguiente;
+
+    // Si la racha continúa, seguimos. Si se rompe, la evaluamos.
+    if (!continua) {
+      const longitud = i - inicioRacha + 1; // días que tiene esta racha
+
+      // Una racha de cualquier tamaño cuenta (incluso la de 1 día).
+      if (longitud > mejor) {
+        mejor = longitud;
+      }
+
+      // La siguiente racha empezará en el día siguiente a este.
+      inicioRacha = i + 1;
+    }
+  }
+
+  return mejor;
+}
+
+
+/* ------------------------------------------------------------
    FUNCIÓN: formatearFecha
    ------------------------------------------------------------
    Convierte una fecha "YYYY-MM-DD" en algo legible en español,
@@ -284,6 +349,9 @@ function renderizar(sesiones) {
 
   // 5) Actualizamos el número grande de la racha.
   elementoRacha.textContent = calcularRacha(sesiones);
+
+  // 6) Actualizamos también la mejor racha.
+  elementoMejorRacha.textContent = calcularMejorRacha(sesiones);
 }
 
 
