@@ -38,6 +38,9 @@ const elementoRacha = document.getElementById("racha");
 // Donde pintamos la MEJOR racha (la más larga conseguida nunca).
 const elementoMejorRacha = document.getElementById("mejor-racha");
 
+// Donde pintamos el total de minutos estudiados esta semana.
+const elementoMinutosSemana = document.getElementById("minutos-semana");
+
 // La lista <ul> donde van las sesiones.
 const listaSesiones = document.getElementById("lista");
 
@@ -241,6 +244,51 @@ function calcularMejorRacha(sesiones) {
 
 
 /* ------------------------------------------------------------
+   FUNCIÓN: calcularMinutosSemana
+   ------------------------------------------------------------
+   Suma los MINUTOS de todas las sesiones que caen en la semana
+   ACTUAL (de lunes a domingo), usando la fecha local del usuario.
+
+   Estrategia:
+     1. Averiguar el LUNES de la semana actual.
+     2. Averiguar el DOMINGO de la semana actual.
+     3. Sumar los minutos de las sesiones cuya fecha esté entre esos
+        dos días (ambos incluidos).
+
+   Truco: para comparar fechas usamos el texto "YYYY-MM-DD", que se
+   ordena igual que el calendario ("2026-10-05" < "2026-10-06").
+------------------------------------------------------------ */
+function calcularMinutosSemana(sesiones) {
+  // Fecha de hoy (objeto Date).
+  const hoy = new Date();
+
+  // getDay() devuelve 0=domingo, 1=lunes, ..., 6=sábado.
+  // Queremos contar la semana desde el lunes, así que convertimos
+  // el día actual a un "desplazamiento" desde el lunes:
+  //   lunes->0, martes->1, ... domingo->6
+  const diaSemana = hoy.getDay();               // 0..6
+  const diasDesdeLunes = (diaSemana + 6) % 7;   // lunes=0 ... domingo=6
+
+  // 1) Lunes de esta semana y 2) domingo (lunes + 6 días).
+  const lunes = sumarDias(hoy, -diasDesdeLunes);
+  const domingo = sumarDias(lunes, 6);
+
+  const lunesISO = obtenerFechaLocalISO(lunes);
+  const domingoISO = obtenerFechaLocalISO(domingo);
+
+  // 3) Sumamos los minutos de las sesiones dentro de ese rango.
+  let total = 0;
+  sesiones.forEach((sesion) => {
+    if (sesion.fecha >= lunesISO && sesion.fecha <= domingoISO) {
+      total += sesion.minutos;
+    }
+  });
+
+  return total;
+}
+
+
+/* ------------------------------------------------------------
    FUNCIÓN: formatearFecha
    ------------------------------------------------------------
    Convierte una fecha "YYYY-MM-DD" en algo legible en español,
@@ -352,6 +400,9 @@ function renderizar(sesiones) {
 
   // 6) Actualizamos también la mejor racha.
   elementoMejorRacha.textContent = calcularMejorRacha(sesiones);
+
+  // 7) Actualizamos el total de minutos estudiados esta semana.
+  elementoMinutosSemana.textContent = calcularMinutosSemana(sesiones);
 }
 
 

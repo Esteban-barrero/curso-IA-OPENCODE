@@ -136,6 +136,21 @@ body {
   font-weight: 700;
 }
 
+/*
+  Total de minutos de la semana: tercer dato de la tarjeta.
+  Más pequeño y separado del bloque anterior para no recargar.
+*/
+.minutos-semana {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* El número de minutos, destacado con negrita. */
+.minutos-semana span {
+  font-weight: 700;
+}
+
 /* ------------------------------------------------------------
    7) TARJETAS NORMALES (formulario y lista)
 ------------------------------------------------------------ */

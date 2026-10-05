@@ -24,6 +24,8 @@ No es una aplicación real: es material de aprendizaje.
   no hay sesión pero ayer sí, la racha sigue viva (no se rompe hasta que termina el día).
 - **Mejor racha**: la corrida de días consecutivos más larga del historial
   (INCLUYE la racha actual). Una racha de 1 solo día ya cuenta como 1.
+- **Minutos de la semana**: suma de minutos de las sesiones de la semana actual,
+  de **lunes a domingo** (hora local).
 - Fechas siempre en **hora local del usuario** (nunca UTC).
 
 ## Forma de trabajar
