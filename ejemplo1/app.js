@@ -44,6 +44,9 @@ const elementoMinutosSemana = document.getElementById("minutos-semana");
 // Donde pintamos cuántos días distintos se ha estudiado este mes.
 const elementoDiasMes = document.getElementById("dias-mes");
 
+// La "cadena" de días: un cuadrito por cada día de la racha actual.
+const elementoCadena = document.getElementById("cadena");
+
 // La lista <ul> donde van las sesiones.
 const listaSesiones = document.getElementById("lista");
 
@@ -413,12 +416,53 @@ function crearElementoSesion(sesion) {
 
 
 /* ------------------------------------------------------------
+   FUNCIÓN: pintarCadena
+   ------------------------------------------------------------
+   Dibuja la "cadena" de los ÚLTIMOS 7 DÍAS (del más antiguo al
+   más reciente). Cada cuadro representa un día:
+     - Si hay sesión ese día, el cuadro va lleno (clase "día-on").
+     - Si no, el cuadro queda vacío (como un hueco en la cadena).
+
+   Es información útil: de un vistazo ves tus últimos días.
+------------------------------------------------------------ */
+function pintarCadena(sesiones) {
+  // 1) Vaciamos la cadena antes de volver a pintarla.
+  elementoCadena.innerHTML = "";
+
+  // 2) Días únicos con estudio (para saber si un día concreto cuenta).
+  const diasConEstudio = new Set(sesiones.map((sesion) => sesion.fecha));
+
+  // 3) Recorremos del día 6 (hace 6 días) hasta hoy (día 0).
+  //    Así el cuadro de la derecha siempre es HOY.
+  for (let i = 6; i >= 0; i--) {
+    const fecha = sumarDias(new Date(), -i);
+    const fechaISO = obtenerFechaLocalISO(fecha);
+
+    // Creamos el cuadro del día.
+    const cuadro = document.createElement("span");
+    cuadro.className = "dia";
+
+    // Si ese día hubo estudio, lo marcamos como "lleno".
+    if (diasConEstudio.has(fechaISO)) {
+      cuadro.classList.add("dia-on");
+    }
+
+    // Guardamos la fecha en un atributo para poder mostrarla en hover.
+    cuadro.title = fechaISO;
+
+    elementoCadena.appendChild(cuadro);
+  }
+}
+
+
+/* ------------------------------------------------------------
    FUNCIÓN: renderizar
    ------------------------------------------------------------
    Dibuja en pantalla todo lo que depende de las sesiones:
      - La lista de sesiones (ordenada de más reciente a más antigua).
      - El mensaje de "vacío" (solo si no hay sesiones).
      - El número de la racha.
+     - La cadena de los últimos 7 días.
 
    La llamamos cada vez que cambian los datos.
 ------------------------------------------------------------ */
@@ -460,6 +504,9 @@ function renderizar(sesiones) {
 
   // 8) Actualizamos los días distintos estudiados este mes.
   elementoDiasMes.textContent = calcularDiasEstudiadosMes(sesiones);
+
+  // 9) Pintamos la cadena de los últimos 7 días.
+  pintarCadena(sesiones);
 }
 
 

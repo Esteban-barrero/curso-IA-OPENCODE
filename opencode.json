@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "servers": {
+      "chrome-devtools": {
+        "type": "local",
+        "command": [
+          "D:/personal/Proyectos/Curso_IA_OPENCODE/.opencode/chrome-devtools-mcp.cmd"
+        ]
+      }
+    }
+  }
+}

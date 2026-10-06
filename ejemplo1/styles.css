@@ -1,190 +1,230 @@
 /* ============================================================
    DIARIO DE ESTUDIO - styles.css
    ============================================================
-   Aquí vive TODO el diseño visual: colores, tamaños, espacios.
-   No hay lógica. Si quieres cambiar cómo se ve la web,
-   tocas este archivo.
+   Dirección de diseño: "cuaderno de estudio".
+   La página imita una hoja de cuaderno cuadriculado: papel claro,
+   tinta oscura y un resaltador amarillo para lo importante.
 
-   Cada bloque va separado y comentado para que sea fácil
-   encontrar qué controla cada cosa.
+   Se evita a propósito el aspecto genérico de "tarjetas SaaS":
+   nada de degradados decorativos ni tarjetas idénticas.
    ============================================================ */
 
 /* ------------------------------------------------------------
-   1) VARIABLES DE COLOR (custom properties)
+   1) VARIABLES (custom properties)
    ------------------------------------------------------------
-   Las "variables" (--nombre) nos permiten definir un color una
-   sola vez y reutilizarlo. Si mañana quiero cambiar el morado,
-   lo cambio AQUÍ y se actualiza en toda la web.
+   Definimos la "paleta" una sola vez. Si cambias un color aquí,
+   cambia en toda la web. Cada nombre explica para qué se usa.
 ------------------------------------------------------------ */
 :root {
-  --color-fondo: #f4f5fb;        /* color de fondo general (gris azulado claro) */
-  --color-tarjeta: #ffffff;      /* color de las tarjetas (blanco) */
-  --color-primario: #6c5ce7;     /* morado principal (botones, acentos) */
-  --color-primario-oscuro: #5546c9; /* morado más oscuro (al pasar el mouse) */
-  --color-texto: #2d2d3a;        /* gris oscuro para el texto principal */
-  --color-texto-suave: #7a7a8c;  /* gris claro para textos secundarios */
-  --color-borde: #e3e3ee;        /* color de los bordes suaves */
-  --radio: 14px;                 /* "redondez" de las esquinas */
-  --sombra: 0 4px 18px rgba(0, 0, 0, 0.06); /* sombra suave de las tarjetas */
+  --papel: #fbfaf5;         /* fondo tipo papel, casi blanco */
+  --cuadricula: #dde4ec;    /* líneas de la cuadrícula del papel */
+  --tinta: #17212b;         /* color del texto principal (azul muy oscuro) */
+  --tinta-suave: #5e6c79;   /* texto secundario, como tinta desvaída */
+  --linea: #d6dde4;         /* bordes finos de las cajas */
+  --resaltador: #ffe24a;    /* amarillo de resaltador: el único color fuerte */
+  --rojo-margen: #d8623f;   /* rojo del margen del cuaderno (uso mínimo) */
+  --radio: 10px;            /* redondez de las esquinas */
 }
 
 /* ------------------------------------------------------------
    2) RESET BÁSICO
-   ------------------------------------------------------------
-   Por defecto el navegador añade márgenes y usa un modelo de caja
-   que confunde. Aquí lo normalizamos para que todo sea predecible.
-   El "*" significa "todos los elementos".
 ------------------------------------------------------------ */
 * {
-  box-sizing: border-box; /* el padding y el borde NO agrandan el ancho */
-  margin: 0;              /* quitamos márgenes por defecto */
-  padding: 0;             /* quitamos padding por defecto */
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 /* ------------------------------------------------------------
-   3) ESTILOS DEL CUERPO (body)
+   3) EL "PAPEL CUADRICULADO"
    ------------------------------------------------------------
-   Fuente, color de fondo, color de texto y centrado general.
+   Dibujamos la cuadrícula con degradados lineales repetidos.
+   Truco: no hace falta ninguna imagen ni librería.
 ------------------------------------------------------------ */
 body {
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  background-color: var(--color-fondo);
-  color: var(--color-texto);
-  line-height: 1.5;           /* espacio entre líneas (más legible) */
-  padding: 24px 16px;         /* aire alrededor del contenido */
-  min-height: 100vh;          /* ocupa al menos toda la altura de la pantalla */
+  color: var(--tinta);
+  line-height: 1.55;
+  min-height: 100vh;
+  padding: 32px 16px;
+
+  background-color: var(--papel);
+  background-image:
+    linear-gradient(var(--cuadricula) 1px, transparent 1px),
+    linear-gradient(90deg, var(--cuadricula) 1px, transparent 1px);
+  background-size: 26px 26px; /* tamaño de cada cuadro del papel */
+  background-position: -1px -1px;
 }
 
 /* ------------------------------------------------------------
    4) CONTENEDOR PRINCIPAL
-   ------------------------------------------------------------
-   Centra el contenido y le pone un ancho máximo, para que en
-   pantallas grandes no se estire demasiado.
 ------------------------------------------------------------ */
 .contenedor {
-  max-width: 540px;   /* ancho máximo (tipo móvil, agradable de leer) */
-  margin: 0 auto;     /* "auto" a los lados = centrado horizontal */
+  max-width: 560px;
+  margin: 0 auto;
   display: flex;
-  flex-direction: column; /* apila las secciones en vertical */
-  gap: 20px;              /* separación entre secciones */
+  flex-direction: column;
+  gap: 22px;
 }
 
 /* ------------------------------------------------------------
    5) ENCABEZADO
+   ------------------------------------------------------------
+   Título en serif para dar aire de cuaderno/libro.
 ------------------------------------------------------------ */
 .cabecera {
-  text-align: center;
+  padding: 4px 2px 0;
 }
 
 .cabecera h1 {
-  font-size: 1.9rem;
-  color: var(--color-primario);
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
 }
 
 .subtitulo {
-  color: var(--color-texto-suave);
-  font-size: 0.95rem;
+  color: var(--tinta-suave);
+  font-size: 0.98rem;
+  margin-top: 4px;
 }
 
 /* ------------------------------------------------------------
-   6) TARJETA DE LA RACHA (destacada, con degradado morado)
+   6) PORTADA / HERO: LA RACHA
    ------------------------------------------------------------
-   Le damos protagonismo porque es el elemento "motivador".
+   Es el elemento memorable. En vez del típico "número grande con
+   degradado", aquí el número va RESALTADO como con marcador, y
+   debajo aparece una "cadena" con un cuadro por cada día seguido.
 ------------------------------------------------------------ */
-.tarjeta-racha {
-  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
-  color: #ffffff;
+.portada {
+  position: relative;
+  background: var(--papel);
+  border: 1px solid var(--linea);
   border-radius: var(--radio);
-  padding: 26px;
-  text-align: center;
-  box-shadow: var(--sombra);
+  padding: 22px 22px 20px 30px;
+  overflow: hidden;
 }
 
-.etiqueta-racha {
-  font-size: 0.9rem;
-  opacity: 0.85;       /* un poco transparente para que no compita con el número */
-  text-transform: uppercase;
-  letter-spacing: 1px;
+/* Línea roja vertical, como el margen de un cuaderno. */
+.portada::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 16px;
+  width: 2px;
+  background: var(--rojo-margen);
+  opacity: 0.5;
 }
 
-.valor-racha {
-  font-size: 3rem;     /* el número grande (🔥) */
+.portada-pista {
+  font-size: 0.85rem;
+  color: var(--tinta-suave);
+  letter-spacing: 0.02em;
+}
+
+.portada-linea {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+/* El número de la racha, con "resaltado" tipo marcador debajo. */
+.portada-numero {
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  font-size: 4.2rem;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  padding: 0 4px;
+  background-image: linear-gradient(
+    transparent 62%,
+    var(--resaltador) 62%,
+    var(--resaltador) 96%,
+    transparent 96%
+  );
 }
 
-.unidad-racha {
-  font-size: 0.9rem;
-  opacity: 0.85;
-}
-
-/*
-  Mejor racha: dato secundario dentro de la misma tarjeta morada.
-  Le ponemos un separador arriba y lo hacemos algo más pequeño para
-  que no compita con la racha actual.
-*/
-.mejor-racha {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
+.portada-dias {
   font-size: 1rem;
-  opacity: 0.95;
+  color: var(--tinta-suave);
 }
 
-/* El número de la mejor racha, un poco destacado con negrita. */
-.mejor-racha span {
-  font-weight: 700;
+/* La "cadena": un cuadro por cada uno de los últimos 7 días. */
+.cadena {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 14px;
+  min-height: 15px; /* reserva el alto aunque aún no haya días */
 }
 
-/*
-  Total de minutos de la semana: tercer dato de la tarjeta.
-  Más pequeño y separado del bloque anterior para no recargar.
-*/
-.minutos-semana {
-  margin-top: 10px;
-  font-size: 0.95rem;
-  opacity: 0.9;
+/* Cuadro de un día SIN estudio: solo el contorno (un hueco). */
+.dia {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  border: 1px solid var(--linea);
+  background: transparent;
 }
 
-/* El número de minutos, destacado con negrita. */
-.minutos-semana span {
-  font-weight: 700;
-}
-
-/*
-  Días estudiados este mes: cuarto dato de la tarjeta.
-  Mismo estilo que la línea de la semana para que combinen.
-*/
-.dias-mes {
-  margin-top: 6px;
-  font-size: 0.95rem;
-  opacity: 0.9;
-}
-
-/* El número de días, destacado con negrita. */
-.dias-mes span {
-  font-weight: 700;
+/* Cuadro de un día CON estudio: relleno de tinta (un eslabón). */
+.dia-on {
+  background: var(--tinta);
+  border-color: var(--tinta);
 }
 
 /* ------------------------------------------------------------
-   7) TARJETAS NORMALES (formulario y lista)
------------------------------------------------------------- */
-.tarjeta {
-  background-color: var(--color-tarjeta);
-  border-radius: var(--radio);
-  padding: 22px;
-  box-shadow: var(--sombra);
-}
-
-.tarjeta h2 {
-  font-size: 1.15rem;
-  margin-bottom: 14px; /* separación entre el título y el contenido */
-}
-
-/* ------------------------------------------------------------
-   8) FORMULARIO
+   7) MARCADORES (mejor racha / semana / mes)
    ------------------------------------------------------------
-   .campo agrupa cada etiqueta + input. Los colocamos en vertical.
+   Usamos una <dl> (lista de definiciones) porque son "dato = valor".
+   Se muestran en fila y se apilan solos si no caben (móvil).
+------------------------------------------------------------ */
+.marcadores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 26px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--linea);
+}
+
+.marcador dt {
+  font-size: 0.8rem;
+  color: var(--tinta-suave);
+}
+
+.marcador dd {
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+/* ------------------------------------------------------------
+   8) PANELES (formulario y lista)
+   ------------------------------------------------------------
+   Menos "tarjeta flotante" y más "bloque escrito en el cuaderno":
+   borde fino y sin sombra pesada, para diferenciarlos del hero.
+------------------------------------------------------------ */
+.panel {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  padding: 20px;
+}
+
+.panel h2 {
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  font-size: 1.25rem;
+  margin-bottom: 14px;
+}
+
+/* ------------------------------------------------------------
+   9) FORMULARIO
 ------------------------------------------------------------ */
 #formulario {
   display: flex;
@@ -201,67 +241,78 @@ body {
 .campo label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--color-texto-suave);
+  color: var(--tinta-suave);
 }
 
 .campo input {
   padding: 11px 12px;
-  border: 1px solid var(--color-borde);
-  border-radius: 10px;
+  border: 1px solid var(--linea);
+  border-radius: 8px;
   font-size: 1rem;
-  font-family: inherit; /* hereda la fuente del body */
-  color: var(--color-texto);
-  background-color: #fafaff;
+  font-family: inherit;
+  color: var(--tinta);
+  background: #ffffff;
 }
 
-/* Cuando el usuario hace clic en un input, se resalta en morado. */
-.campo input:focus {
+/* Foco visible (accesibilidad): borde de tinta + halo suave. */
+.campo input:focus-visible {
   outline: none;
-  border-color: var(--color-primario);
-  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+  border-color: var(--tinta);
+  box-shadow: 0 0 0 3px rgba(23, 33, 43, 0.12);
 }
 
 /* ------------------------------------------------------------
-   9) BOTÓN "GUARDAR SESIÓN"
+   10) BOTÓN PRINCIPAL
+   ------------------------------------------------------------
+   En reposo es tinta sólida; al pasar el mouse se convierte en
+   resaltador, como si marcáramos la acción.
 ------------------------------------------------------------ */
 .boton {
-  background-color: var(--color-primario);
-  color: #ffffff;
+  background: var(--tinta);
+  color: var(--papel);
   border: none;
-  border-radius: 10px;
-  padding: 12px;
+  border-radius: 8px;
+  padding: 13px;
   font-size: 1rem;
   font-weight: 600;
-  cursor: pointer;            /* el cursor cambia a "manita" */
-  transition: background-color 0.2s ease; /* cambio suave de color */
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
 }
 
-/* Al pasar el mouse por encima, se oscurece. */
 .boton:hover {
-  background-color: var(--color-primario-oscuro);
+  background: var(--resaltador);
+  color: var(--tinta);
+}
+
+.boton:focus-visible {
+  outline: 3px solid var(--tinta);
+  outline-offset: 2px;
 }
 
 /* ------------------------------------------------------------
-   10) LISTA DE SESIONES
+   11) LISTA DE SESIONES
    ------------------------------------------------------------
-   Quitamos los "puntitos" por defecto de las <ul> y damos
-   estilo a cada sesión (cada <li>).
+   Cada sesión es una línea del cuaderno: tema arriba, detalle abajo,
+   separadas por una línea fina en vez de por una caja con sombra.
 ------------------------------------------------------------ */
 .lista-sesiones {
-  list-style: none;   /* sin viñetas */
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 .sesion {
-  border: 1px solid var(--color-borde);
-  border-radius: 10px;
-  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  background-color: #fcfcff;
+  gap: 2px;
+  padding: 12px 2px;
+  border-bottom: 1px solid var(--linea);
+}
+
+/* Quitamos la línea de la última para no duplicar con el borde del panel. */
+.sesion:last-child {
+  border-bottom: none;
 }
 
 .sesion-tema {
@@ -270,30 +321,48 @@ body {
 
 .sesion-detalle {
   font-size: 0.85rem;
-  color: var(--color-texto-suave);
+  color: var(--tinta-suave);
   display: flex;
-  gap: 12px;          /* separa la fecha de los minutos */
+  gap: 12px;
   flex-wrap: wrap;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ------------------------------------------------------------
-   11) MENSAJE "TODAVÍA NO HAY SESIONES"
-   ------------------------------------------------------------
-   Lo ocultamos con JavaScript cuando ya hay sesiones.
+   12) MENSAJE "TODAVÍA NO HAY SESIONES"
 ------------------------------------------------------------ */
 .mensaje-vacio {
-  text-align: center;
-  color: var(--color-texto-suave);
+  color: var(--tinta-suave);
   font-size: 0.9rem;
-  padding: 12px 0;
+  padding: 10px 0 2px;
 }
 
 /* ------------------------------------------------------------
-   12) UTILIDAD: CLASE PARA OCULTAR
-   ------------------------------------------------------------
-   Cuando JavaScript añade esta clase a un elemento, desaparece.
-   La usamos para esconder el mensaje de "vacío".
+   13) UTILIDAD: OCULTAR
 ------------------------------------------------------------ */
 .oculto {
   display: none;
+}
+
+/* ------------------------------------------------------------
+   14) MOVIMIENTO REDUCIDO (accesibilidad)
+   ------------------------------------------------------------
+   Si el usuario pidió menos animaciones en su sistema, las quitamos.
+------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* ------------------------------------------------------------
+   15) PANTALLAS PEQUEÑAS
+------------------------------------------------------------ */
+@media (max-width: 420px) {
+  .cabecera h1 {
+    font-size: 2rem;
+  }
+  .portada-numero {
+    font-size: 3.4rem;
+  }
 }

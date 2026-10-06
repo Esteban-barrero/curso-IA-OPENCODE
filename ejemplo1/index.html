@@ -5,7 +5,7 @@
   ============================================================
   Este es el archivo que ABRE el navegador (se abre con doble clic).
   Aquí solo está la ESTRUCTURA de la página (el esqueleto visible):
-  el título, el contador de racha (🔥), el formulario y la lista.
+  el encabezado, la portada con la racha, el formulario y la lista.
 
   No hay lógica aquí. La lógica (guardar, calcular la racha, etc.)
   vive en app.js, y el diseño (colores, tamaños) en styles.css.
@@ -14,7 +14,7 @@
 <html lang="es">
 <head>
   <!--
-    charset="UTF-8": permite acentos, ñ y emojis (como 🔥).
+    charset="UTF-8": permite acentos, ñ y emojis.
     viewport: hace que la página se vea bien en el móvil
     (sin esto, el celular mostraría la web diminuta).
   -->
@@ -28,47 +28,57 @@
 </head>
 
 <body>
-  <!-- Contenedor principal: agrupa todo para centrarlo y darle márgenes. -->
+  <!-- Contenedor principal: centra todo y le da márgenes. -->
   <main class="contenedor">
 
     <!-- ====== ENCABEZADO ====== -->
     <header class="cabecera">
       <h1>Diario de Estudio</h1>
-      <p class="subtitulo">Registra tus sesiones y mantén viva la racha</p>
+      <p class="subtitulo">Anota lo que estudias y cuida tu racha</p>
     </header>
 
     <!--
-      ====== TARJETA DE LA RACHA ======
-      Aquí se muestra el número de días consecutivos estudiando.
-      El <span id="racha"> está VACÍO a propósito: JavaScript lo rellenará
-      con el número real. Lo identificamos con id="racha".
+      ====== PORTADA: LA RACHA ======
+      Es el elemento protagonista. Muestra el número de días seguidos
+      y una "cadena" con un cuadro por cada día.
+      Los <span> con id los rellena JavaScript.
     -->
-    <section class="tarjeta-racha" aria-label="Rachas">
-      <p class="etiqueta-racha">Racha actual</p>
-      <p class="valor-racha"><span id="racha">0</span>🔥</p>
-      <p class="unidad-racha">días seguidos</p>
+    <section class="portada" aria-label="Racha actual">
+      <p class="portada-pista">Racha actual</p>
 
-      <!-- Mejor racha: la más larga conseguida nunca (rachas pasadas). -->
-      <p class="mejor-racha">
-        Mejor racha: <span id="mejor-racha">0</span> días
-      </p>
+      <div class="portada-linea">
+        <span class="portada-numero" id="racha">0</span>
+        <span class="portada-dias">días seguidos</span>
+      </div>
 
-      <!-- Total de minutos estudiados esta semana (lunes a domingo). -->
-      <p class="minutos-semana">
-        Esta semana: <span id="minutos-semana">0</span> min
-      </p>
+      <!-- Cadena de los últimos 7 días: JavaScript llena los cuadros. -->
+      <div class="cadena" id="cadena" aria-label="Últimos 7 días de estudio"></div>
 
-      <!-- Días distintos estudiados este mes (hasta hoy). -->
-      <p class="dias-mes">
-        Días este mes: <span id="dias-mes">0</span>
-      </p>
+      <!--
+        Marcadores: los tres datos de resumen.
+        Usamos <dl> porque son "etiqueta -> valor".
+      -->
+      <dl class="marcadores">
+        <div class="marcador">
+          <dt>Mejor racha</dt>
+          <dd><span id="mejor-racha">0</span> días</dd>
+        </div>
+        <div class="marcador">
+          <dt>Esta semana</dt>
+          <dd><span id="minutos-semana">0</span> min</dd>
+        </div>
+        <div class="marcador">
+          <dt>Días este mes</dt>
+          <dd><span id="dias-mes">0</span></dd>
+        </div>
+      </dl>
     </section>
 
     <!--
       ====== FORMULARIO PARA REGISTRAR UNA SESIÓN ======
       Cuando el usuario lo envíe, JavaScript escuchará el evento "submit".
     -->
-    <section class="tarjeta">
+    <section class="panel">
       <h2>Nueva sesión</h2>
 
       <form id="formulario">
@@ -111,13 +121,13 @@
       JavaScript insertará aquí cada sesión guardada, de la más
       reciente a la más antigua. Empieza vacía (<ul> sin <li>).
     -->
-    <section class="tarjeta">
+    <section class="panel">
       <h2>Mis sesiones</h2>
       <!-- id="lista" => JavaScript la busca por este id para llenarla -->
       <ul id="lista" class="lista-sesiones"></ul>
       <!-- Mensaje que se muestra cuando todavía no hay ninguna sesión -->
       <p id="mensaje-vacio" class="mensaje-vacio">
-        Todavía no has registrado ninguna sesión. ¡Empieza hoy! 💪
+        Aún no hay sesiones registradas. La primera empieza ahora.
       </p>
     </section>
 
