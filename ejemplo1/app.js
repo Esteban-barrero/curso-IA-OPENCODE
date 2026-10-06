@@ -55,26 +55,6 @@ const mensajeVacio = document.getElementById("mensaje-vacio");
 
 
 /* ------------------------------------------------------------
-   FUNCIÓN: obtenerFechaLocalISO
-   ------------------------------------------------------------
-   Devuelve la fecha de HOY en formato "YYYY-MM-DD" usando la
-   fecha LOCAL del usuario (no UTC).
-
-   ¿Por qué no usamos toISOString()? Porque toISOString() usa UTC
-   y de noche podría dar el día equivocado. Aquí construimos la
-   fecha "a mano" con el año, mes y día locales.
-
-   Ejemplo de salida: "2026-10-05"
------------------------------------------------------------- */
-function obtenerFechaLocalISO(fecha = new Date()) {
-  const anio = fecha.getFullYear();               // 2026
-  const mes = String(fecha.getMonth() + 1).padStart(2, "0"); // 10 (enero es 0)
-  const dia = String(fecha.getDate()).padStart(2, "0");      // 05
-  return `${anio}-${mes}-${dia}`;
-}
-
-
-/* ------------------------------------------------------------
    FUNCIÓN: cargarSesiones
    ------------------------------------------------------------
    Lee las sesiones guardadas en localStorage y las devuelve
@@ -117,23 +97,6 @@ function cargarSesiones() {
 ------------------------------------------------------------ */
 function guardarSesiones(sesiones) {
   localStorage.setItem(CLAVE_STORAGE, JSON.stringify(sesiones));
-}
-
-
-/* ------------------------------------------------------------
-   FUNCIÓN: sumarDias
-   ------------------------------------------------------------
-   Recibe una fecha (objeto Date) y un número de días (puede ser
-   negativo), y devuelve una NUEVA fecha sumando esos días.
-
-   La usamos para "retroceder" día a día al calcular la racha.
-
-   Nota: creamos una copia de la fecha para no modificar la original.
------------------------------------------------------------- */
-function sumarDias(fecha, dias) {
-  const copia = new Date(fecha);      // copia de la fecha recibida
-  copia.setDate(copia.getDate() + dias); // sumamos/restamos días
-  return copia;
 }
 
 
@@ -507,6 +470,9 @@ function renderizar(sesiones) {
 
   // 9) Pintamos la cadena de los últimos 7 días.
   pintarCadena(sesiones);
+
+  // 10) Pintamos el mapa de calor (función de mapa.js).
+  pintarMapa(sesiones);
 }
 
 

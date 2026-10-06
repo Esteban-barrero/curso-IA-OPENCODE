@@ -75,6 +75,33 @@
     </section>
 
     <!--
+      ====== MAPA DE CALOR ======
+      Muestra las últimas 16 semanas (lunes a domingo). Cada cuadrito
+      es un día; cuanto más minutos, más intenso el verde.
+      JavaScript rellena la cuadrícula (id="mapa-calor") y la leyenda.
+    -->
+    <section class="panel panel-mapa">
+      <h2>Mapa de estudio</h2>
+
+      <!-- Contenedor desplazable: en móvil se puede arrastrar. -->
+      <div class="mapa-scroll">
+        <!-- La cuadrícula de semanas/días la llena JavaScript. -->
+        <div class="mapa-calor" id="mapa-calor" aria-label="Mapa de calor de estudio"></div>
+      </div>
+
+      <!-- Leyenda: explica la escala de color "menos / más". -->
+      <div class="leyenda">
+        <span class="leyenda-texto">menos</span>
+        <span class="leyenda-cuadro nivel-0"></span>
+        <span class="leyenda-cuadro nivel-1"></span>
+        <span class="leyenda-cuadro nivel-2"></span>
+        <span class="leyenda-cuadro nivel-3"></span>
+        <span class="leyenda-cuadro nivel-4"></span>
+        <span class="leyenda-texto">más</span>
+      </div>
+    </section>
+
+    <!--
       ====== FORMULARIO PARA REGISTRAR UNA SESIÓN ======
       Cuando el usuario lo envíe, JavaScript escuchará el evento "submit".
     -->
@@ -134,10 +161,13 @@
   </main>
 
   <!--
-    Enlazamos el JavaScript AL FINAL del body, a propósito.
-    Así el HTML ya existe cuando el script se ejecuta y puede
-    encontrar todos los elementos por su id sin errores.
+    Cargamos los scripts EN ESTE ORDEN:
+      1) logica.js  -> funciones puras (sin DOM), deben existir primero.
+      2) mapa.js    -> interfaz del mapa (usa las funciones de logica.js).
+      3) app.js     -> arranque y resto de la interfaz; llama a pintarMapa().
   -->
+  <script src="logica.js"></script>
+  <script src="mapa.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -24,6 +24,13 @@
   --resaltador: #ffe24a;    /* amarillo de resaltador: el único color fuerte */
   --rojo-margen: #d8623f;   /* rojo del margen del cuaderno (uso mínimo) */
   --radio: 10px;            /* redondez de las esquinas */
+
+  /* Escala VERDE del mapa de calor (estilo GitHub). */
+  --nivel-0: #e8ede8;       /* sin estudio: verde casi gris, muy claro */
+  --nivel-1: #b7e0b0;       /* poco */
+  --nivel-2: #6fc46a;       /* medio */
+  --nivel-3: #2f9e44;       /* bastante */
+  --nivel-4: #1b6b2c;       /* mucho: el más oscuro */
 }
 
 /* ------------------------------------------------------------
@@ -342,6 +349,105 @@ body {
 ------------------------------------------------------------ */
 .oculto {
   display: none;
+}
+
+/* ------------------------------------------------------------
+   13) MAPA DE CALOR
+   ------------------------------------------------------------
+   Cuadrícula de cuadritos: columnas = semanas, filas = días.
+   Cada cuadro lleva una clase "nivel-N" que define su color.
+------------------------------------------------------------ */
+
+/* Contenedor desplazable: si hay muchas semanas, se puede arrastrar. */
+.mapa-scroll {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+/* La cuadrícula: fila de columnas (semanas). */
+.mapa-calor {
+  display: flex;
+  gap: 3px;
+  min-width: min-content; /* que no se encoja: mantiene los cuadros */
+}
+
+/* Una columna = una semana (7 cuadros + etiqueta de mes arriba). */
+.semana {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  position: relative;
+}
+
+/* Etiqueta del mes encima de la primera semana de ese mes. */
+.mes-etiqueta {
+  font-size: 0.7rem;
+  color: var(--tinta-suave);
+  height: 14px;       /* reserva el alto para alinear todas las columnas */
+  white-space: nowrap;
+}
+
+/* Un cuadro = un día. */
+.celda {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  background: var(--nivel-0);
+}
+
+/* Los 5 niveles de color (verde de claro a oscuro). */
+.celda.nivel-0 { background: var(--nivel-0); }
+.celda.nivel-1 { background: var(--nivel-1); }
+.celda.nivel-2 { background: var(--nivel-2); }
+.celda.nivel-3 { background: var(--nivel-3); }
+.celda.nivel-4 { background: var(--nivel-4); }
+
+/* Al pasar el mouse, un borde para indicar qué día es. */
+.celda:hover {
+  outline: 2px solid var(--tinta);
+  outline-offset: 1px;
+}
+
+/* ------------------------------------------------------------
+   LEYENDA "menos / más"
+------------------------------------------------------------ */
+.leyenda {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  font-size: 0.78rem;
+  color: var(--tinta-suave);
+}
+
+.leyenda-cuadro {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+}
+
+.leyenda-cuadro.nivel-0 { background: var(--nivel-0); }
+.leyenda-cuadro.nivel-1 { background: var(--nivel-1); }
+.leyenda-cuadro.nivel-2 { background: var(--nivel-2); }
+.leyenda-cuadro.nivel-3 { background: var(--nivel-3); }
+.leyenda-cuadro.nivel-4 { background: var(--nivel-4); }
+
+/* ------------------------------------------------------------
+   TOOLTIP (detalle del día)
+   ------------------------------------------------------------
+   Caja pequeña que sigue al puntero/toque. Se coloca con JS.
+------------------------------------------------------------ */
+.mapa-tooltip {
+  position: fixed;
+  z-index: 10;
+  transform: translate(-50%, -130%); /* se centra por encima del punto */
+  background: var(--tinta);
+  color: var(--papel);
+  font-size: 0.78rem;
+  padding: 5px 9px;
+  border-radius: 6px;
+  pointer-events: none; /* no bloquea el mouse */
+  white-space: nowrap;
 }
 
 /* ------------------------------------------------------------
