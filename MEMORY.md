@@ -9,6 +9,9 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
 - Rediseño visual "cuaderno de estudio" (papel cuadriculado, resaltador, cadena de 7 días).
 - Lógica de fechas/cálculo separada en `logica.js` (pura, testeable con `node --test`).
 - Datos en localStorage (clave `diarioEstudio.sesiones`).
+- **Spec 002 "Objetivo semanal" en borrador**: spec redactada y pasada por 3 revisiones de
+  aclaración (constitución+fechas / interfaz+móvil / tests). Falta: aprobación del usuario,
+  plan, tareas e implementación. No hay código de la 002 todavía.
 
 ## Decisiones (y por qué)
 - Sin backend ni dependencias: cualquiera debe poder abrirlo con doble clic.
@@ -29,6 +32,15 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
   pura vive en `logica.js`; el pintado, en `mapa.js` (constitución, principio 3).
 - Se actualizó el principio 4 de la constitución para permitir tests nativos `node --test`
   (Node los trae incluidos: no son dependencia externa).
+- Objetivo semanal (spec 002, en borrador): el usuario eligió (a) que el avance **ignore**
+  las fechas futuras mientras el marcador "Esta semana" **sigue sumándolas** — dos reglas
+  deliberadas, así que ambos números pueden diferir y el bloque del objetivo debe explicarlo
+  en texto; (b) meta cumplida con minutos **≥** objetivo; (c) un decimal con coma y empate
+  redondeado **al alza**; (d) clave de `localStorage` propia, sin tocar el formato de las
+  sesiones; (e) recálculo al abrir y en cada acción, **sin temporizadores**.
+- `calcularMinutosSemana` vive en `app.js`, que **no se puede importar en Node** (usa
+  `document.getElementById` a nivel superior). Para testear el avance habrá que moverla a
+  `logica.js` como función pura con `hoy` como parámetro.
 
 ## Aprendizajes y errores a evitar
 - AGENTS.md tenía la clave de localStorage mal (`diario-estudio-sesiones`); la real es `diarioEstudio.sesiones`.
@@ -40,4 +52,7 @@ Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo qu
   baja de ~500px y da capturas falsamente cortadas.
 
 ## Próximos pasos
-- (vacío por ahora)
+- Spec 002: el usuario debe **aprobar** la spec; luego `plan.md` + `tasks.md`, e implementar
+  las tareas de una en una con el subagente `implementer`.
+- Pendiente de decidir en el plan: barra o solo texto, redacción exacta de "cumplida" y del
+  texto que explica la diferencia con "Esta semana".
