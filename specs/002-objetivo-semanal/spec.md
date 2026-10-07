@@ -1,8 +1,9 @@
 # Especificación 002 — Objetivo semanal de estudio
 
-- **Estado:** borrador
+- **Estado:** implementada y validada
 - **Fecha:** 2026-10-06
 - **Autor:** planner
+- **Aprobada por el usuario:** 2026-10-06
 
 > Solo el QUÉ y el POR QUÉ. Nada de stack, arquitectura ni nombres de archivos.
 
@@ -337,8 +338,12 @@ RF-6 — Presentación medible en pantalla y en móvil.
   objetivo anterior.
 - Editar la meta y quitarla funcionan sin perder ni modificar ninguna sesión.
 - La validación y normalización del objetivo, el avance, el porcentaje y el total de minutos
-  de la semana son **funciones puras sin acceso al DOM que reciben el día actual como
-  parámetro**, cubiertos con `node --test` que pasan en verde.
+  de la semana son **funciones puras sin acceso al DOM**, cubiertas con `node --test` que pasan
+  en verde. **Las que dependen de una fecha (el avance, el total de minutos de la semana y el
+  cálculo del objetivo a partir de las sesiones) reciben el día actual como parámetro**; las que
+  no tienen ninguna fecha que mirar (validar el objetivo y calcular el porcentaje) no lo
+  necesitan. Lo que exige este requisito es que **ninguna lea la hora del reloj por su cuenta**,
+  para que los tests puedan fijar el día y obtener siempre el mismo resultado.
 - Con datos válidos no hay errores en la consola; con el objetivo guardado corrupto la
   aplicación **no lanza excepciones** (puede avisar por consola). Los textos están en español.
 - A 375 px **emulados** (comprobando antes que el ancho emulado es 375) no hay scroll
@@ -358,7 +363,7 @@ RF-6 — Presentación medible en pantalla y en móvil.
 | Formas de entrada aceptadas y rechazadas, y normalización a entero | `node --test` |
 | Avance con y sin fechas futuras | `node --test` |
 | Total semanal (lunes–domingo, cruce de mes y de año, medianoche, cambio de hora) | `node --test` |
-| Las cuatro funciones son puras y reciben "hoy" | `node --test` |
+| Las funciones son puras y las que dependen de una fecha reciben "hoy" | `node --test` |
 | Fijar, editar y quitar la meta | Chrome DevTools |
 | Números grandes con punto de miles ("45.000 de 100.000 min") | Chrome DevTools |
 | Objetivo conservado al recargar; dato corrupto → invitación y sin excepciones | Chrome DevTools |
