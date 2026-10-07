@@ -472,3 +472,243 @@ body {
     font-size: 3.4rem;
   }
 }
+
+/* ============================================================
+   16) OBJETIVO SEMANAL
+   ============================================================
+   Este bloque DECORA el panel del objetivo, que va entre la
+   portada y el mapa de calor. Los números y los textos los
+   escribe app.js; aquí solo se decide CÓMO se ven.
+
+   Va al final del archivo por dos razones:
+     1) Usa clases nuevas (objetivo-*) que no están antes.
+     2) El botón secundario (.boton-suave) tiene que quedar
+        DESPUÉS de .boton: cuando dos reglas tienen la misma
+        importancia, gana la que está más abajo.
+
+   Lo que fija el plan de la spec 002:
+   - Cifras y porcentaje en Georgia con tabular-nums, como los
+     marcadores de la portada, para que los números no bailen.
+   - La barra es decoración (lleva aria-hidden="true"): el avance
+     ya está escrito entero en el texto de al lado, así que no
+     hace falta role="progressbar".
+   - "¡Meta cumplida!" con fondo resaltador, el único color fuerte
+     del proyecto, que ya marca lo importante.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   El formulario del objetivo
+   ------------------------------------------------------------
+   El panel no necesita más estilo: hereda de .panel (mismo papel
+   y mismo borde). Lo único que se le añade al formulario es una
+   línea fina que separa los DATOS de la semana del FORMULARIO:
+   el mismo recurso que usan los marcadores de la portada.
+------------------------------------------------------------ */
+#formulario-objetivo {
+  display: flex; /* como #formulario: los campos en columna */
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--linea);
+}
+
+/* ------------------------------------------------------------
+   SIN OBJETIVO NO HAY DATOS QUE ENSEÑAR (RF-2)
+   ------------------------------------------------------------
+   Mientras se ve la invitación es que todavía no hay objetivo
+   guardado, así que las cifras, el porcentaje, la marca de
+   cumplida, la barra y la nota se esconden.
+
+   ¿Por qué lo decide el CSS y no JavaScript? Porque así queda
+   AUTOMÁTICO: si un día queda escrito un número de un objetivo
+   anterior (por ejemplo, después de quitarlo), esta regla lo
+   esconde igual. Lo único que hace falta es que app.js esconda
+   la invitación en cuanto hay un objetivo.
+------------------------------------------------------------ */
+#objetivo-invitacion:not(.oculto) ~ .objetivo-cifras,
+#objetivo-invitacion:not(.oculto) ~ .objetivo-porcentaje,
+#objetivo-invitacion:not(.oculto) ~ .objetivo-cumplida,
+#objetivo-invitacion:not(.oculto) ~ .objetivo-barra,
+#objetivo-invitacion:not(.oculto) ~ .objetivo-nota {
+  display: none;
+}
+
+/* La invitación: la voz tranquila que explica qué hacer. */
+#objetivo-invitacion {
+  font-size: 0.95rem;
+  color: var(--tinta-suave);
+}
+
+/* ------------------------------------------------------------
+   LAS CIFRAS Y EL PORCENTAJE
+   ------------------------------------------------------------
+   Georgia (serif) + tabular-nums, igual que .marcador dd. Aquí
+   se repite el patrón del marcador: la frase pequeña ("45.000 de
+   100.000 min") y debajo el dato grande ("15,7 %").
+------------------------------------------------------------ */
+.objetivo-cifras {
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.objetivo-porcentaje {
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  margin-top: 2px;
+}
+
+/* ------------------------------------------------------------
+   "¡META CUMPLIDA!": EL RESALTADOR
+   ------------------------------------------------------------
+   El mismo recurso que el número grande de la portada: fondo
+   resaltador y texto en tinta.
+
+   El :not(.oculto) es importante: sin él, el
+   "display: inline-block" de aquí ganaría al "display: none" de
+   la clase global .oculto (gana la regla que está más abajo) y el
+   aviso se vería siempre, incluso sin objetivo.
+------------------------------------------------------------ */
+.objetivo-cumplida:not(.oculto) {
+  display: inline-block; /* el amarillo abraza solo el texto */
+  margin-top: 10px;
+  padding: 3px 10px;
+  background: var(--resaltador);
+  color: var(--tinta);
+  font-weight: 700;
+  border-radius: 6px;
+}
+
+/* ------------------------------------------------------------
+   LA BARRA: UN CARRIL CON UN RELLENO
+   ------------------------------------------------------------
+   Carril verde clarito (--nivel-0) con borde fino, como los
+   cuadros vacíos de la "cadena" de la portada. El relleno es
+   tinta: parece un eslabón más de la cadena.
+------------------------------------------------------------ */
+.objetivo-barra {
+  height: 10px; /* grosor de la barra */
+  margin-top: 12px;
+  background: var(--nivel-0);
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+  overflow: hidden; /* el relleno no se sale del carril */
+}
+
+/* El relleno: JavaScript le pone el ancho (style.width = "45 %").
+   De salida mide 0, así que se ve el carril vacío. */
+.objetivo-relleno {
+  width: 0;
+  height: 100%;
+  background: var(--tinta);
+  border-radius: 4px;
+  transition: width 0.3s ease; /* la barra crece al guardar */
+}
+
+/* Con la meta cumplida el relleno se pone del verde del mapa de
+   calor. No hace falta que JavaScript añada ninguna clase: el texto
+   "¡Meta cumplida!" está justo encima de la barra, así que cuando
+   deja de estar oculto, la barra se pone verde. */
+#objetivo-cumplida:not(.oculto) + .objetivo-barra .objetivo-relleno {
+  background: var(--nivel-3);
+}
+
+/* ------------------------------------------------------------
+   LA NOTA QUE EXPLICA LA DIFERENCIA CON "ESTA SEMANA"
+   ------------------------------------------------------------
+   Lleva una línea vertical al lado, como una anotación escrita al
+   margen, y va en tinta suave: es una aclaración, no un dato.
+------------------------------------------------------------ */
+.objetivo-nota {
+  margin-top: 10px;
+  padding-left: 10px;
+  border-left: 2px solid var(--linea);
+  font-size: 0.85rem;
+  color: var(--tinta-suave);
+}
+
+/* ------------------------------------------------------------
+   EL HUECO RESERVADO DEL MENSAJE DE ERROR
+   ------------------------------------------------------------
+   Este <p> está SIEMPRE vacío y ocupa sitio por su cuenta: por eso
+   tiene min-height (dos líneas cortas). El mensaje de error se
+   mete DENTRO con JavaScript y, como el hueco ya estaba ocupado,
+   la página NO salta de alto cuando aparece el error.
+------------------------------------------------------------ */
+.objetivo-ayuda {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  min-height: 2.9em; /* el alto de dos líneas, reservado siempre */
+}
+
+/* El mensaje de error es el <p> que JavaScript inserta dentro del
+   hueco. Va en tinta y en negrita: el aviso es el TEXTO, no un
+   color. Como es hijo directo del hueco, coge este estilo aunque
+   tenga su propia clase. */
+.objetivo-ayuda > p {
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------
+   LOS DOS BOTONES DEL OBJETIVO
+   ------------------------------------------------------------
+   flex-wrap: si los dos no caben (móvil), uno debajo del otro.
+------------------------------------------------------------ */
+.objetivo-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Cada botón se estira para repartir el hueco; si se apilan, cada
+   uno ocupa el ancho entero, como el de "Guardar sesión". */
+.objetivo-botones .boton {
+  flex: 1 1 170px;
+}
+
+/* ------------------------------------------------------------
+   EL BOTÓN SECUNDARIO: "QUITAR OBJETIVO"
+   ------------------------------------------------------------
+   Mismo tamaño y mismas esquinas que el botón principal, pero solo
+   contorno, sin la tinta sólida: es una acción secundaria, no la
+   principal del bloque. Por eso necesita su propio estilo en vez
+   de reutilizar el de .boton.
+------------------------------------------------------------ */
+.boton-suave {
+  background: transparent;
+  color: var(--tinta);
+  border: 1px solid var(--linea);
+}
+
+.boton-suave:hover {
+  background: var(--papel);
+  border-color: var(--tinta);
+  color: var(--tinta);
+}
+
+/* ------------------------------------------------------------
+   17) EL OBJETIVO EN PANTALLAS PEQUEÑAS
+   ------------------------------------------------------------
+   A 420 px y por debajo (los 375 px del móvil también entran):
+   el número grande se apiata un poco y los botones se apilan a lo
+   ancho, porque dos botones en fila se quedan demasiado estrechos.
+------------------------------------------------------------ */
+@media (max-width: 420px) {
+  .objetivo-cifras {
+    font-size: 1.05rem;
+  }
+
+  .objetivo-porcentaje {
+    font-size: 1.7rem;
+  }
+
+  .objetivo-botones .boton {
+    flex-basis: 100%; /* cada botón ocupa una fila entera */
+  }
+}

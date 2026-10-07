@@ -75,6 +75,109 @@
     </section>
 
     <!--
+      ====== OBJETIVO SEMANAL ======
+      Va justo debajo de la portada a propósito: el marcador
+      "Esta semana" está arriba y así los dos números que hay que
+      comparar (aquí el avance, arriba el total) quedan en la misma
+      pantalla, uno encima del otro.
+
+      Aquí solo está el esqueleto: los <p> con id los rellena
+      JavaScript (app.js) según haya objetivo guardado o no.
+    -->
+    <section class="panel panel-objetivo" aria-labelledby="objetivo-titulo">
+      <!-- El id del título también sirve para aria-labelledby de la sección. -->
+      <h2 id="objetivo-titulo">Objetivo semanal</h2>
+
+      <!--
+        SIN objetivo: se ve esto y nada más (ni cifras, ni porcentaje,
+        ni barra, ni un "0 / 0").
+      -->
+      <p id="objetivo-invitacion">Todavía no tienes un objetivo. Escribe cuántos
+        minutos quieres estudiar cada semana y verás tu avance.</p>
+
+      <!--
+        CON objetivo: JavaScript escribe aquí las cifras, el porcentaje,
+        si la meta está cumplida y la nota que explica la diferencia con
+        "Esta semana". Empiezan vacíos a propósito.
+      -->
+      <p class="objetivo-cifras" id="objetivo-cifras"></p>
+      <p class="objetivo-porcentaje" id="objetivo-porcentaje"></p>
+      <p class="objetivo-cumplida oculto" id="objetivo-cumplida">¡Meta cumplida!</p>
+
+      <!--
+        Barra decorativa. Lleva aria-hidden="true" porque NO aporta
+        información nueva: el avance ya está escrito entero en el texto
+        de arriba, así el lector de pantalla no lo lee dos veces y el
+        avance se puede leer aunque la barra no se vea.
+        El relleno (id="objetivo-relleno") es lo que JavaScript ensancha
+        con el porcentaje.
+      -->
+      <div class="objetivo-barra" id="objetivo-barra" aria-hidden="true">
+        <div class="objetivo-relleno" id="objetivo-relleno"></div>
+      </div>
+
+      <!--
+        Nota de la diferencia: solo aparece si hay sesiones con fecha
+        futura. Nace oculta (clase "oculto") porque sin objetivo no hay
+        dos números que comparar.
+      -->
+      <p class="objetivo-nota oculto" id="objetivo-nota"></p>
+
+      <!--
+        Formulario del objetivo. JavaScript escucha el evento "submit"
+        para guardar y el "click" de "Quitar objetivo" para borrarlo.
+      -->
+      <form id="formulario-objetivo">
+        <div class="campo">
+          <label for="objetivo-minutos">Objetivo semanal (minutos por semana)</label>
+
+          <!--
+            type="text" y NO type="number" a propósito: el navegador se
+            tragaría lo que no es un número ("abc") y .value saldría
+            vacío, y entonces no podríamos distinguir "no hay nada
+            escrito" de "no es un número": son dos errores distintos que
+            la persona tiene que entender (uno de los cuatro motivos de
+            la lista cerrada).
+            inputmode="numeric" sí pone el teclado de números en el
+            móvil sin que el navegador corrija lo que se escribe.
+          -->
+          <input
+            type="text"
+            id="objetivo-minutos"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="Ej: 300"
+          />
+
+          <!--
+            Hueco reservado y SIEMPRE VACÍO: el mensaje de error se
+            inserta dentro de él con JavaScript. Como el hueco ya ocupa
+            sitio (min-height en el CSS), la página no salta de alto
+            cuando aparece el error.
+            El mensaje de error NO es este <p>: es otro elemento que se
+            crea y se elimina del documento, para que al corregirse
+            desaparezca de verdad y no quede escondido.
+          -->
+          <p class="objetivo-ayuda" id="objetivo-ayuda"></p>
+        </div>
+
+        <div class="objetivo-botones">
+          <!-- Guardar: el propio formulario se envía (no recarga la página). -->
+          <button type="submit" class="boton">Guardar objetivo</button>
+
+          <!--
+            Quitar: solo tiene sentido si hay un objetivo guardado, así
+            que nace con la clase "oculto" y JavaScript lo muestra
+            cuando existe.
+          -->
+          <button type="button" class="boton boton-suave oculto" id="boton-quitar-objetivo">
+            Quitar objetivo
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!--
       ====== MAPA DE CALOR ======
       Muestra las últimas 16 semanas (lunes a domingo). Cada cuadrito
       es un día; cuanto más minutos, más intenso el verde.

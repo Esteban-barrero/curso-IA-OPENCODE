@@ -3,56 +3,62 @@
 Memoria del proyecto entre sesiones. Máximo ~50 líneas: resume o elimina lo que ya no aporte.
 
 ## Estado actual
-- v6 funcionando: registrar sesiones (fecha, tema, minutos), racha actual, mejor racha,
-  total de minutos de la semana, días estudiados del mes, lista de sesiones y **mapa de
-  calor** (16 semanas, estilo GitHub).
-- Rediseño visual "cuaderno de estudio" (papel cuadriculado, resaltador, cadena de 7 días).
-- Lógica de fechas/cálculo separada en `logica.js` (pura, testeable con `node --test`).
-- Datos en localStorage (clave `diarioEstudio.sesiones`).
-- **Spec 002 "Objetivo semanal" en borrador**: spec redactada y pasada por 3 revisiones de
-  aclaración (constitución+fechas / interfaz+móvil / tests). Falta: aprobación del usuario,
-  plan, tareas e implementación. No hay código de la 002 todavía.
+- v7 funcionando: registrar sesiones (fecha, tema, minutos), racha actual, mejor racha,
+  minutos de la semana, días del mes, lista, mapa de calor (16 semanas) y **objetivo
+  semanal** (fijar, editar y quitar la meta; avance, % con coma, "¡Meta cumplida!").
+- Spec 002 "Objetivo semanal" **implementada y validada**: T1-T11 cerradas, 63 tests en
+  verde y revisión RF por RF en el navegador.
+- Lógica de fechas/cálculo separada en `logica.js` (pura, testeable con `node --test`); el
+  texto de interfaz en `index.html`/`app.js` (constitución, principio 3).
+- Datos en localStorage: `diarioEstudio.sesiones` (JSON) y `diarioEstudio.objetivo`
+  (texto plano, p. ej. `"300"`). Sin backend ni dependencias: doble clic y ya está.
+- Diseño "cuaderno de estudio" (skill frontend-design): papel cuadriculado con CSS puro,
+  resaltador, Georgia serif, cadena de 7 días. Mapa de calor: 16 semanas, 5 niveles fijos,
+  verde GitHub, lógica pura en `logica.js` y pintado en `mapa.js`.
 
 ## Decisiones (y por qué)
-- Sin backend ni dependencias: cualquiera debe poder abrirlo con doble clic.
-- Fecha editable en el formulario: permite registrar días pasados y ver la racha crecer.
-- Mejor racha = la corrida de días consecutivos más larga del historial (incluye la
-  actual); una racha de 1 día ya cuenta como 1. Primero se probó excluyendo la racha
-  actual (mostraba 0 con 3 días seguidos) y luego exigiendo 2+ días; se simplificó.
-- Minutos de la semana = semana natural de lunes a domingo (no domingo a sábado); es la
-  convención en español.
-- Días del mes = días DISTINTOS (no sesiones: dos el mismo día cuentan como 1) y solo
-  hasta hoy (se ignoran fechas futuras del mes).
-- Diseño (skill frontend-design): identidad de "cuaderno de estudio" (papel cuadriculado
-  con CSS puro, resaltador amarillo, serif Georgia para títulos). La "cadena" muestra los
-  últimos 7 días (cuadro lleno = con estudio). Se evitó a propósito el look genérico
-  (degradados decorativos, tarjetas idénticas, etiquetas en MAYÚSCULAS).
-- Mapa de calor (spec 001): 16 semanas configurables, 5 niveles fijos (0/1-30/31-60/
-  61-120/121+), verde tipo GitHub, tooltip con fecha+minutos, lunes a domingo. La lógica
-  pura vive en `logica.js`; el pintado, en `mapa.js` (constitución, principio 3).
-- Se actualizó el principio 4 de la constitución para permitir tests nativos `node --test`
-  (Node los trae incluidos: no son dependencia externa).
-- Objetivo semanal (spec 002, en borrador): el usuario eligió (a) que el avance **ignore**
-  las fechas futuras mientras el marcador "Esta semana" **sigue sumándolas** — dos reglas
-  deliberadas, así que ambos números pueden diferir y el bloque del objetivo debe explicarlo
-  en texto; (b) meta cumplida con minutos **≥** objetivo; (c) un decimal con coma y empate
-  redondeado **al alza**; (d) clave de `localStorage` propia, sin tocar el formato de las
-  sesiones; (e) recálculo al abrir y en cada acción, **sin temporizadores**.
-- `calcularMinutosSemana` vive en `app.js`, que **no se puede importar en Node** (usa
-  `document.getElementById` a nivel superior). Para testear el avance habrá que moverla a
-  `logica.js` como función pura con `hoy` como parámetro.
+- Fecha editable: permite registrar días pasados y ver la racha crecer.
+- Mejor racha = la corrida de días consecutivos más larga del historial, **incluida la
+  actual**; 1 día ya cuenta como 1. Antes se probó excluyendo la actual (mostraba 0 con 3
+  días seguidos) y exigiendo 2+ días; se simplificó.
+- Minutos de la semana = semana natural de lunes a domingo (convención en español).
+- Días del mes = días DISTINTOS (dos sesiones el mismo día cuentan como 1) y solo hasta
+  hoy (se ignoran fechas futuras).
+- Objetivo semanal (002), decisiones **no obvias**:
+  - **Dos reglas deliberadas para las fechas futuras**: el avance del objetivo las ignora
+    y el marcador "Esta semana" **sigue sumándolas**. Por eso los dos números pueden
+    diferir, y el bloque lo explica en texto visible llevando los dos números.
+  - **Meta cumplida con minutos ≥ objetivo** (justo igual ya cuenta).
+  - **Un decimal con coma y empate al alza**: se redondea en **décimas enteras**
+    (`Math.floor(x + 0.5)`), nunca con `toFixed`, que depende de la representación
+    binaria (49/400 = 12,25 % debe dar "12,3 %").
+  - **Clave propia de localStorage en texto plano**: no se toca el formato de las sesiones
+    y el dato se puede corromper a mano desde la consola para probar el caso "dato feo".
+  - **Recálculo dentro de `renderizar()`, sin un solo temporizador**: el avance sale al
+    abrir y tras cada acción; con la página quieta un cambio de semana **no** se refleja
+    hasta la siguiente interacción (limitación conocida y aceptada).
+  - `calcularMinutosSemana` se mudó de `app.js` a `logica.js` recibiendo `hoy` como
+    parámetro; `renderizar()` lee el reloj **una sola vez** y pasa ese mismo `hoy` al
+    total de la semana y al avance, para que no puedan discrepar.
 
 ## Aprendizajes y errores a evitar
-- AGENTS.md tenía la clave de localStorage mal (`diario-estudio-sesiones`); la real es `diarioEstudio.sesiones`.
+- **El `node` del PATH no sirve para los tests**: en esta máquina es el v14.17.0 de nvm (o
+  no está), y `--test` no existe ("bad option: --test"). Hay que llamar al `node.exe` de
+  la carpeta `nvm\v24.21.0\`, y siempre con la **ruta del archivo de test**, no la carpeta.
+- La zona horaria de esta máquina es `America/Bogota`, **sin horario de verano**: el test
+  del cambio de hora (25 oct 2026) no muerde aquí; pasaría igual en cualquier zona.
+- AGENTS.md tenía la clave de localStorage mal (`diario-estudio-sesiones`); la real es
+  `diarioEstudio.sesiones`.
 - Al probar render con mocks, `innerHTML = ""` debe vaciar el array de hijos del mock;
   si no, los cuadros se acumulan y dan falsos fallos.
-- `node --test <directorio>` falla en Node 24 (lo trata como módulo); usar la ruta del
-  archivo de test: `node --test ejemplo1/tests/logica.test.js`.
 - Para verificar móvil de verdad, usar `emulate` (viewport 375px); `resize_page(375)` no
   baja de ~500px y da capturas falsamente cortadas.
 
 ## Próximos pasos
-- Spec 002: el usuario debe **aprobar** la spec; luego `plan.md` + `tasks.md`, e implementar
-  las tareas de una en una con el subagente `implementer`.
-- Pendiente de decidir en el plan: barra o solo texto, redacción exacta de "cumplida" y del
-  texto que explica la diferencia con "Esta semana".
+- Decidir si abrir **spec 003** para los dos bugs preexistentes de `mapa.js`:
+  `pintarMapa()` crea un `.mapa-tooltip` **por repintado** (1 → 2 → 4 en `document.body`)
+  y los cuadros del mapa llevan `aria-label` en un `<span>` **sin `role` válido**, que un
+  lector de pantalla puede no leer. Ninguno de los dos se ha arreglado.
+- Proponer mover a `AGENTS.md` la **regla del objetivo recurrente**: la misma meta sirve
+  para todas las semanas (no se guarda historial de metas) y el avance se recalcula al
+  abrir y tras cada acción, sin temporizadores.

@@ -5,6 +5,13 @@
      - Guardar y leer sesiones en localStorage.
      - Calcular la racha de días seguidos.
      - Pintar la lista y el número de la racha en pantalla.
+     - Leer, guardar y pintar el objetivo semanal.
+     - Escuchar el formulario del objetivo (guardar, editar, quitar
+       y avisar de los cuatro errores posibles).
+
+   Los cálculos (racha, minutos de la semana, avance del objetivo)
+   viven en logica.js, que es lógica pura y se puede probar con
+   `node --test`. Aquí solo se guardan, se leen y se pintan.
 
    Lo he dividido en funciones pequeñas y comentadas, para que
    cada una haga UNA sola cosa y sea fácil de entender.
@@ -23,6 +30,31 @@
 // Clave con la que guardamos los datos en localStorage.
 // (localStorage guarda texto en el navegador, aunque cierres la pestaña).
 const CLAVE_STORAGE = "diarioEstudio.sesiones";
+
+// Clave del OBJETIVO SEMANAL: es una clave NUEVA y PROPIA.
+// OJO: no se guarda dentro de "diarioEstudio.sesiones" (las sesiones
+// siguen igual: ni se leen ni se escriben para el objetivo).
+// Aquí solo hay un entero escrito como texto, por ejemplo "300".
+const CLAVE_OBJETIVO = "diarioEstudio.objetivo";
+
+// Los CUATRO mensajes de error del campo del objetivo, uno por cada
+// motivo por el que se puede rechazar lo escrito.
+//
+// Son cuatro textos DISTINTOS a propósito: tienen que distinguir
+// "no hay nada escrito", "no es un número", "tiene que ser más de 0"
+// y "no se admiten decimales", para que la persona entienda qué ha
+// hecho mal y no lea un aviso genérico.
+//
+// Las CLAVES son los mismos motivos que devuelve normalizarObjetivo()
+// en logica.js: vacio, noNumero, noPositivo y decimales. El cálculo va
+// allí (es lógica pura y testeable); el TEXTO es de interfaz, así que
+// vive aquí, en app.js.
+const MENSAJES_ERROR = {
+  vacio: "Escribe los minutos de tu objetivo semanal.",
+  noNumero: "Eso no es un número. Escribe solo cifras.",
+  noPositivo: "El objetivo tiene que ser más de 0 minutos.",
+  decimales: "Los minutos van en enteros, sin decimales.",
+};
 
 // El <form> con los campos.
 const formulario = document.getElementById("formulario");
@@ -52,6 +84,42 @@ const listaSesiones = document.getElementById("lista");
 
 // El mensaje "todavía no hay sesiones".
 const mensajeVacio = document.getElementById("mensaje-vacio");
+
+// ----- Elementos del bloque del objetivo semanal -----
+// La invitación (lo que se ve cuando todavía no hay objetivo).
+const elementoInvitacion = document.getElementById("objetivo-invitacion");
+
+// Las cifras "45.000 de 100.000 min".
+const elementoCifras = document.getElementById("objetivo-cifras");
+
+// El porcentaje "15,7 %".
+const elementoPorcentaje = document.getElementById("objetivo-porcentaje");
+
+// El aviso "¡Meta cumplida!".
+const elementoCumplida = document.getElementById("objetivo-cumplida");
+
+// El relleno de la barra: es lo único a lo que hay que tocar para
+// cambiarle el ancho (la barra solo decora, no aporta información).
+const elementoRelleno = document.getElementById("objetivo-relleno");
+
+// La nota que explica la diferencia con "Esta semana".
+const elementoNota = document.getElementById("objetivo-nota");
+
+// El campo donde se escriben los minutos del objetivo.
+const campoObjetivo = document.getElementById("objetivo-minutos");
+
+// El <form> del objetivo: lo escuchamos cuando se envía
+// (pulsando "Guardar objetivo" o la tecla Intro dentro del campo).
+const formularioObjetivo = document.getElementById("formulario-objetivo");
+
+// El hueco reservado donde se mete el mensaje de error. Está SIEMPRE
+// en el HTML y nunca lleva texto: el mensaje se inserta DENTRO de él
+// y, como el hueco ya ocupa su sitio (min-height en el CSS), la página
+// no salta de alto cuando aparece el error.
+const huecoAyudaObjetivo = document.getElementById("objetivo-ayuda");
+
+// El botón "Quitar objetivo" (solo se ve si hay objetivo guardado).
+const botonQuitarObjetivo = document.getElementById("boton-quitar-objetivo");
 
 
 /* ------------------------------------------------------------
@@ -97,6 +165,279 @@ function cargarSesiones() {
 ------------------------------------------------------------ */
 function guardarSesiones(sesiones) {
   localStorage.setItem(CLAVE_STORAGE, JSON.stringify(sesiones));
+}
+
+
+/* ------------------------------------------------------------
+   FUNCIÓN: leerObjetivo
+   ------------------------------------------------------------
+   Lee el objetivo semanal guardado y lo devuelve como un ENTERO
+   ya normalizado (300), o null si no hay ninguno válido.
+
+   Tres casos distintos, y no es lo mismo:
+
+     1) No hay nada guardado (o está vacío): nunca se fijó un
+        objetivo. Devolvemos null y NO avisamos por consola,
+        porque no es ningún problema: es simplemente que la
+        persona todavía no ha escrito su meta.
+
+     2) Hay algo guardado pero no es un número válido ("abc",
+        "0", "300.5"...): esto SÍ es un dato corrupto. Escribimos
+        un aviso en la consola (para que se pueda depurar) pero
+        seguimos devolviendo null, así que la web no se rompe
+        nunca y la pantalla se queda con la invitación.
+
+     3) Hay un objetivo válido: devolvemos el entero.
+
+   El texto se normaliza con normalizarObjetivo() de logica.js,
+   que es quien decide qué se acepta (por eso "0300" sale 300).
+------------------------------------------------------------ */
+function leerObjetivo() {
+  // localStorage.getItem devuelve el texto guardado, o null si
+  // esa clave no existe (porque nunca se guardó nada).
+  const texto = localStorage.getItem(CLAVE_OBJETIVO);
+
+  // 1) Caso "no hay objetivo": no hay nada, o solo espacios.
+  if (texto === null || texto.trim() === "") {
+    return null;
+  }
+
+  // 2) Hay texto: le pedimos a la lógica pura que lo normalice.
+  const { valor } = normalizarObjetivo(texto);
+
+  // 3) Si no sale un entero, el dato guardado está corrupto.
+  //    Avisamos (en español) pero seguimos: sin objetivo.
+  if (valor === null) {
+    console.warn(
+      "El objetivo guardado no es válido, se trata como si no tuvieras objetivo:"
+    );
+    return null;
+  }
+
+  // 4) Objetivo válido: aquí está el entero limpio.
+  return valor;
+}
+
+
+/* ------------------------------------------------------------
+   FUNCIÓN: guardarObjetivo
+   ------------------------------------------------------------
+   Guarda el objetivo semanal en su propia clave de localStorage.
+
+   Se guarda como TEXTO PLANO con String() (por ejemplo "300"),
+   nunca como JSON. Así el dato se puede leer y estropear a mano
+   desde la consola del navegador, que es como se comprueba que la
+   web aguanta un objetivo corrupto sin romperse.
+
+   OJO: esta función solo toca la clave del objetivo. Las sesiones
+   no se leen ni se escriben aquí (viven en su propia clave).
+------------------------------------------------------------ */
+function guardarObjetivo(valorEntero) {
+  localStorage.setItem(CLAVE_OBJETIVO, String(valorEntero));
+}
+
+
+/* ------------------------------------------------------------
+   FUNCIÓN: quitarObjetivo
+   ------------------------------------------------------------
+   Borra el objetivo semanal guardado.
+
+   removeItem elimina la clave entera del navegador, así que a
+   partir de aquí volveremos al estado "sin objetivo" (se verá la
+   invitación). Las sesiones tampoco se tocan.
+------------------------------------------------------------ */
+function quitarObjetivo() {
+  localStorage.removeItem(CLAVE_OBJETIVO);
+}
+
+
+/* ------------------------------------------------------------
+   FUNCIÓN: pintarObjetivo
+   ------------------------------------------------------------
+   Dibuja el bloque "Objetivo semanal" a partir de las sesiones y
+   del objetivo guardado. La llama renderizar() cada vez que
+   cambian los datos.
+
+   Todo el cálculo se lo pide a calcularAvanceObjetivo() de
+   logica.js, que devuelve el objetivo ya normalizado, los minutos
+   de avance, el porcentaje, el ancho de la barra, si la meta está
+   cumplida y si hay sesiones con fecha futura. Aquí solo se
+   escribe ese resultado en la pantalla.
+
+   Recibe "hoy" como parámetro (no mira el reloj por su cuenta):
+   es el MISMO día que usa "Esta semana", así los dos números que
+   compara la nota se calculan en el mismo momento y no pueden
+   discrepar.
+
+   OJO: el bloque sin objetivo lo resuelve el CSS a partir de la
+   invitación (si la invitación está visible, las cifras, el
+   porcentaje, la barra y la nota se ocultan solos). Por eso aquí,
+   sin objetivo, solo hay que mostrar la invitación y terminar.
+------------------------------------------------------------ */
+function pintarObjetivo(sesiones, hoy) {
+  // 1) Leemos el objetivo guardado: un entero (300) o null. Si el
+  //    dato está corrupto, leerObjetivo avisa por consola y da null.
+  const objetivo = leerObjetivo();
+
+  // 2) El agregador de logica.js normaliza por su cuenta el TEXTO
+  //    guardado, y normalizarObjetivo() solo admite texto (un número
+  //    suelto lo rechaza como "no es un número"). Por eso le pasamos
+  //    el entero como texto: "300". Con null no hay objetivo.
+  const objetivoGuardado = objetivo === null ? null : String(objetivo);
+
+  // 3) Pedimos todos los números de una vez a la lógica pura.
+  const estado = calcularAvanceObjetivo(sesiones, objetivoGuardado, hoy);
+
+  // 4) El botón "Quitar objetivo" solo tiene sentido si hay algo
+  //    que quitar. La clase "oculto" es la que lo esconde.
+  if (estado.hayObjetivo) {
+    botonQuitarObjetivo.classList.remove("oculto");
+  } else {
+    botonQuitarObjetivo.classList.add("oculto");
+  }
+
+  // 5) SIN objetivo: dejamos visible la invitación y nos vamos.
+  //    Aquí no se pone ninguna cifra: sin meta no hay progreso que
+  //    enseñar (ni un "0 de 0 min", ni un "0,0 %", ni la barra).
+  if (!estado.hayObjetivo) {
+    elementoInvitacion.classList.remove("oculto");
+    return;
+  }
+
+  // 6) CON objetivo: escondemos la invitación y ya puede verse
+  //    todo lo de abajo.
+  elementoInvitacion.classList.add("oculto");
+
+  // 7) Las cifras: cuántos minutos llevas de los que te pediste.
+  //    formatearMinutos pone el punto de miles (45.000).
+  elementoCifras.textContent =
+    formatearMinutos(estado.minutosAvance) +
+    " de " +
+    formatearMinutos(estado.objetivo) +
+    " min";
+
+  // 8) El porcentaje, que ya viene escrito como "15,7 %"
+  //    (con coma y un solo decimal).
+  elementoPorcentaje.textContent = estado.porcentaje;
+
+  // 9) La barra: solo se le cambia el ancho (0..100).
+  //    La barra lleva aria-hidden porque el número ya está escrito
+  //    justo encima en texto de verdad.
+  elementoRelleno.style.width = estado.ancho + "%";
+
+  // 10) "¡Meta cumplida!" solo se ve si has llegado al objetivo
+  //     (o lo has pasado).
+  if (estado.cumplida) {
+    elementoCumplida.classList.remove("oculto");
+  } else {
+    elementoCumplida.classList.add("oculto");
+  }
+
+  // 11) La nota: solo aparece cuando hay sesiones con fecha futura,
+  //     porque es el único caso en que "Esta semana" (arriba) y el
+  //     avance (aquí) dan números distintos. Lleva los DOS números
+  //     para que se vea cuánto difieren.
+  if (estado.hayFuturo) {
+    // En el HTML la nota nace con la clase "oculto" (sin objetivo
+    // no hay nada que comparar), así que hay que quitársela para
+    // que se vea.
+    elementoNota.classList.remove("oculto");
+    elementoNota.textContent =
+      "El avance ignora las sesiones con fecha futura y «Esta semana» las cuenta:"
+      + " aquí " + formatearMinutos(estado.minutosAvance) + " min,"
+      + " arriba " + formatearMinutos(estado.minutosSemana) + " min.";
+  } else {
+    // Sin fechas futuras los dos números coinciden: la nota se
+    // vacía y se esconde (para no dejar un hueco con el borde).
+    elementoNota.classList.add("oculto");
+    elementoNota.textContent = "";
+  }
+}
+
+
+/* ------------------------------------------------------------
+   FUNCIÓN: mostrarError
+   ------------------------------------------------------------
+   Crea el mensaje de error del campo del objetivo y lo mete dentro
+   del hueco reservado ("objetivo-ayuda").
+
+   Decisiones importantes (vienen de la especificación):
+
+     1) Se CREA el <p> con document.createElement. Cuando no hay
+        error ese nodo no existe: desaparece de verdad del documento,
+        no se esconde con "display: none" (la spec lo prohíbe).
+
+     2) Se inserta DENTRO del hueco, que está en el flujo normal de
+        la página. Nunca es flotante ni se superpone: no puede tapar
+        la sección siguiente.
+
+     3) Se le pone role="alert" para que el lector de pantalla lo
+        avise en cuanto aparece.
+
+     4) Se añade aria-describedby="objetivo-error" al campo. Así el
+        error queda ASOCIADO a su campo: al leer el campo, el lector
+        de pantalla lee también el motivo.
+
+   Antes de crearlo quitamos el que hubiera (si la persona vuelve a
+   enviar algo malo dos veces seguidas), para que nunca se acumulen
+   dos mensajes.
+------------------------------------------------------------ */
+function mostrarError(motivo) {
+  // Si ya había un mensaje (o un error anterior), lo eliminamos primero.
+  quitarError();
+
+  // Creamos el <p> del mensaje.
+  const mensaje = document.createElement("p");
+
+  // El id es el que usará aria-describedby y el que nos permite
+  // encontrarlo luego para borrarlo.
+  mensaje.id = "objetivo-error";
+
+  // Clase propia para poder darle estilo si hiciera falta. El estilo
+  // que se aplica de verdad es ".objetivo-ayuda > p" del CSS.
+  mensaje.className = "objetivo-error";
+
+  // El texto es el del motivo que nos ha dado la lógica pura.
+  mensaje.textContent = MENSAJES_ERROR[motivo];
+
+  // role="alert": el lector de pantalla lo anuncia al aparecer.
+  mensaje.setAttribute("role", "alert");
+
+  // Lo metemos DENTRO del hueco reservado, en el flujo normal.
+  huecoAyudaObjetivo.appendChild(mensaje);
+
+  // Asociamos el mensaje a su campo (mensaje accesible por causa).
+  campoObjetivo.setAttribute("aria-describedby", "objetivo-error");
+}
+
+
+/* ------------------------------------------------------------
+   FUNCIÓN: quitarError
+   ------------------------------------------------------------
+   Borra el mensaje de error del campo del objetivo, si hay alguno.
+
+   Hace dos cosas:
+     1) Elimina el nodo del documento con .remove() (no lo esconde:
+        el texto desaparece de verdad de la página).
+     2) Quita también aria-describedby del campo, porque si lo
+        dejáramos apuntaría a un id que ya no existe.
+
+   Puede ejecutarse aunque NO haya ningún error: en ese caso el
+   getElementById devuelve null, no hace falta el nodo y la función
+   no se queja.
+------------------------------------------------------------ */
+function quitarError() {
+  // Buscamos el mensaje por su id.
+  const mensaje = document.getElementById("objetivo-error");
+
+  // Si existe, lo eliminamos del documento de verdad.
+  if (mensaje) {
+    mensaje.remove();
+  }
+
+  // Y quitamos la referencia del campo (getAttribute devuelve null
+  // si el atributo no estaba, así que no falla nunca).
+  campoObjetivo.removeAttribute("aria-describedby");
 }
 
 
@@ -213,48 +554,21 @@ function calcularMejorRacha(sesiones) {
 
 
 /* ------------------------------------------------------------
-   FUNCIÓN: calcularMinutosSemana
+   FUNCIÓN: calcularMinutosSemana (ahora vive en logica.js)
    ------------------------------------------------------------
-   Suma los MINUTOS de todas las sesiones que caen en la semana
-   ACTUAL (de lunes a domingo), usando la fecha local del usuario.
+   Este cálculo se ha mudado a logica.js (la lógica pura) porque
+   antes miraba el reloj por su cuenta con new Date(), y así no se
+   podía probar con `node --test`.
 
-   Estrategia:
-     1. Averiguar el LUNES de la semana actual.
-     2. Averiguar el DOMINGO de la semana actual.
-     3. Sumar los minutos de las sesiones cuya fecha esté entre esos
-        dos días (ambos incluidos).
+   Ahora vive en logica.js y recibe el día "hoy" como PARÁMETRO:
+   calcularMinutosSemana(sesiones, hoy). Su cuerpo es el mismo de
+   siempre (de lunes a domingo, contando también las fechas
+   futuras), así que el número de la portada NO cambia.
 
-   Truco: para comparar fechas usamos el texto "YYYY-MM-DD", que se
-   ordena igual que el calendario ("2026-10-05" < "2026-10-06").
+   Aquí solo hay que llamarla. OJO: si se escribiera aquí otra
+   copia, esta pisaría la de logica.js (que se carga antes) y
+   habría dos copias del mismo cálculo pudiendo divergir.
 ------------------------------------------------------------ */
-function calcularMinutosSemana(sesiones) {
-  // Fecha de hoy (objeto Date).
-  const hoy = new Date();
-
-  // getDay() devuelve 0=domingo, 1=lunes, ..., 6=sábado.
-  // Queremos contar la semana desde el lunes, así que convertimos
-  // el día actual a un "desplazamiento" desde el lunes:
-  //   lunes->0, martes->1, ... domingo->6
-  const diaSemana = hoy.getDay();               // 0..6
-  const diasDesdeLunes = (diaSemana + 6) % 7;   // lunes=0 ... domingo=6
-
-  // 1) Lunes de esta semana y 2) domingo (lunes + 6 días).
-  const lunes = sumarDias(hoy, -diasDesdeLunes);
-  const domingo = sumarDias(lunes, 6);
-
-  const lunesISO = obtenerFechaLocalISO(lunes);
-  const domingoISO = obtenerFechaLocalISO(domingo);
-
-  // 3) Sumamos los minutos de las sesiones dentro de ese rango.
-  let total = 0;
-  sesiones.forEach((sesion) => {
-    if (sesion.fecha >= lunesISO && sesion.fecha <= domingoISO) {
-      total += sesion.minutos;
-    }
-  });
-
-  return total;
-}
 
 
 /* ------------------------------------------------------------
@@ -426,8 +740,10 @@ function pintarCadena(sesiones) {
      - El mensaje de "vacío" (solo si no hay sesiones).
      - El número de la racha.
      - La cadena de los últimos 7 días.
+     - El bloque del objetivo semanal (con su avance).
 
-   La llamamos cada vez que cambian los datos.
+   La llamamos cada vez que cambian los datos. Es el ÚNICO sitio
+   donde se refresca la pantalla, también para el objetivo.
 ------------------------------------------------------------ */
 function renderizar(sesiones) {
   // 1) Vaciamos la lista antes de volver a pintarla.
@@ -462,16 +778,29 @@ function renderizar(sesiones) {
   // 6) Actualizamos también la mejor racha.
   elementoMejorRacha.textContent = calcularMejorRacha(sesiones);
 
-  // 7) Actualizamos el total de minutos estudiados esta semana.
-  elementoMinutosSemana.textContent = calcularMinutosSemana(sesiones);
+  // 7) Leemos el día de HOY UNA sola vez para toda la pantalla.
+  //    calcularMinutosSemana ya no está en este archivo (vive en
+  //    logica.js) y recibe el día como parámetro, así que el número
+  //    es EXACTAMENTE el mismo que antes.
+  //    El bloque del objetivo se pinta con ESTE MISMO "hoy": si
+  //    calculara cada uno el suyo por su cuenta, los dos números
+  //    que compara la nota (aquí el avance, arriba "Esta semana")
+  //    podrían salir de dos momentos distintos y discrepar.
+  const hoy = new Date();
 
-  // 8) Actualizamos los días distintos estudiados este mes.
+  // 8) Actualizamos el total de minutos estudiados esta semana.
+  elementoMinutosSemana.textContent = calcularMinutosSemana(sesiones, hoy);
+
+  // 9) Actualizamos los días distintos estudiados este mes.
   elementoDiasMes.textContent = calcularDiasEstudiadosMes(sesiones);
 
-  // 9) Pintamos la cadena de los últimos 7 días.
+  // 10) Pintamos la cadena de los últimos 7 días.
   pintarCadena(sesiones);
 
-  // 10) Pintamos el mapa de calor (función de mapa.js).
+  // 11) Pintamos el bloque del objetivo semanal.
+  pintarObjetivo(sesiones, hoy);
+
+  // 12) Pintamos el mapa de calor (función de mapa.js).
   pintarMapa(sesiones);
 }
 
@@ -529,19 +858,124 @@ function alEnviarFormulario(evento) {
 
 
 /* ------------------------------------------------------------
+   FUNCIÓN MANEJADORA: alEnviarObjetivo
+   ------------------------------------------------------------
+   Se ejecuta cuando la persona envía el formulario del objetivo
+   (pulsando "Guardar objetivo" o Intro dentro del campo).
+
+   Pasos:
+     1. Frenamos el envío normal (que recargaría la página).
+     2. Le pasamos el TEXTO escrito a normalizarObjetivo(), que es
+        quien decide si vale (es lógica pura de logica.js).
+     3. Si no vale: mostramos el mensaje del motivo y NO GUARDAMOS
+        NADA. El objetivo que hubiera antes se queda como estaba.
+     4. Si vale: lo guardamos como texto plano, quitamos el error y
+        repintamos la pantalla.
+
+   OJO con el paso 2: a normalizarObjetivo() hay que pasarle el
+   TEXTO del campo (campoObjetivo.value), no un número suelto, porque
+   esa función solo admite texto (un número le daría "no es un
+   número"). Si no hay objetivo todavía tampoco usamos leerObjetivo():
+   aquí no estamos leyendo lo guardado, estamos validando lo escrito.
+------------------------------------------------------------ */
+function alEnviarObjetivo(evento) {
+  // 1) Evitamos que el navegador recargue la página.
+  evento.preventDefault();
+
+  // 2) Validamos y normalizamos lo escrito (0300 -> 300).
+  const { valor, motivo } = normalizarObjetivo(campoObjetivo.value);
+
+  // 3) NO VALE: enseñamos el motivo y paramos aquí.
+  //    No se guarda nada y no se toca el objetivo anterior
+  //    (sigue en su sitio, guardado y en pantalla).
+  if (valor === null) {
+    mostrarError(motivo);
+    return;
+  }
+
+  // 4) VALE: lo guardamos como texto plano en su propia clave
+  //    (las sesiones no se tocan para nada).
+  guardarObjetivo(valor);
+
+  // 5) Dejamos el campo con el entero normalizado, para que se vea
+  //    exactamente lo que queda guardado (si se escribió "0300",
+  //    aquí se ve "300").
+  campoObjetivo.value = String(valor);
+
+  // 6) El error anterior ya no vale: quitamos su nodo del documento.
+  quitarError();
+
+  // 7) Repintamos la pantalla con el objetivo nuevo. pintarObjetivo
+  //    lo vuelve a leer de localStorage, así que las cifras, el
+  //    porcentaje y la barra salen ya del entero guardado.
+  renderizar(cargarSesiones());
+}
+
+
+/* ------------------------------------------------------------
+   FUNCIÓN MANEJADORA: alQuitarObjetivo
+   ------------------------------------------------------------
+   Se ejecuta cuando la persona pulsa "Quitar objetivo".
+
+   Pasos:
+     1. Borramos la clave del objetivo en localStorage.
+     2. Quitamos el mensaje de error, si había alguno.
+     3. Vaciamos el campo (si no se queda escrito el número que se
+        acababa de quitar y parece que sigue puesto).
+     4. Repintamos: vuelve la invitación y desaparecen cifras,
+        porcentaje y barra.
+
+   OJO: aquí NO se toca ninguna sesión. Quitar la meta no puede
+   borrar ni un minuto de lo ya estudiado (localStorage.removeItem
+   solo toca la clave del objetivo, que es la suya).
+------------------------------------------------------------ */
+function alQuitarObjetivo() {
+  // 1) Borramos SOLO la clave del objetivo.
+  quitarObjetivo();
+
+  // 2) Si había un mensaje de error, desaparece (y el campo deja de
+  //    apuntar a él con aria-describedby).
+  quitarError();
+
+  // 3) Vaciamos el campo para que no quede el número puesto.
+  campoObjetivo.value = "";
+
+  // 4) Repintamos la pantalla: invitation, sin cifras ni barra.
+  renderizar(cargarSesiones());
+}
+
+
+/* ------------------------------------------------------------
    FUNCIÓN: iniciar
    ------------------------------------------------------------
    Punto de arranque. Se ejecuta al cargar la página.
      - Pone la fecha de hoy por defecto en el formulario.
+     - Rellena el campo del objetivo con lo que haya guardado.
      - Escucha el envío del formulario.
+     - Escucha el envío del formulario del objetivo y su botón de
+       "Quitar objetivo".
      - Dibuja las sesiones que ya estuvieran guardadas.
 ------------------------------------------------------------ */
 function iniciar() {
   // Fecha de hoy por defecto en el campo fecha.
   campoFecha.value = obtenerFechaLocalISO();
 
+  // Si ya había un objetivo guardado, lo escribimos en su campo
+  // (ya normalizado: "0300" se ve como 300). Si no hay ninguno,
+  // el campo se queda vacío.
+  const objetivoGuardado = leerObjetivo();
+  if (objetivoGuardado !== null) {
+    campoObjetivo.value = objetivoGuardado;
+  }
+
   // Escuchamos el evento "submit" del formulario.
   formulario.addEventListener("submit", alEnviarFormulario);
+
+  // Enviar el formulario del objetivo: guardar o avisar del error.
+  formularioObjetivo.addEventListener("submit", alEnviarObjetivo);
+
+  // Botón "Quitar objetivo": lo quita y vuelve al estado sin objetivo.
+  botonQuitarObjetivo.addEventListener("click", alQuitarObjetivo);
 
   // Primer dibujado con lo que haya guardado.
   renderizar(cargarSesiones());
